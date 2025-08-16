@@ -6,13 +6,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let panel: vscode.WebviewPanel | undefined = undefined;
 	// Command to create the diff view webview
-	let createDiffCommand = vscode.commands.registerCommand('ethical-tools.createDiff', () => {
+	let createDiffCommand = vscode.commands.registerCommand('ethical-dev-tools.createDiff', () => {
 		if (panel) {
 			panel.reveal(vscode.ViewColumn.One);
 		} else {
 			panel = vscode.window.createWebviewPanel(
-				'ethicalTools',
-				'Ethical Tools',
+				'ethicalDevTools',
+				'Ethical Dev Tools',
 				vscode.ViewColumn.One,
 				{
 					enableScripts: true,
@@ -59,7 +59,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	let base64Panel: vscode.WebviewPanel | undefined = undefined;
-	let base64ToolCommand = vscode.commands.registerCommand('ethical-tools.base64Tool', () => {
+	let base64ToolCommand = vscode.commands.registerCommand('ethical-dev-tools.base64Tool', () => {
 		if (base64Panel) {
 			base64Panel.reveal(vscode.ViewColumn.One);
 		} else {
@@ -90,7 +90,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Register the TreeDataProvider for the sidebar
 	const ethicalDevToolProvider = new EthicalDevToolProvider();
-	vscode.window.registerTreeDataProvider('ethical-tools-diff', ethicalDevToolProvider);
+	vscode.window.registerTreeDataProvider('ethical-dev-tools-diff', ethicalDevToolProvider);
 
 	context.subscriptions.push(createDiffCommand, base64ToolCommand);
 }
@@ -115,7 +115,7 @@ class EthicalDevToolProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 		} else {
 			const diffToolItem = new vscode.TreeItem('Create Diff', vscode.TreeItemCollapsibleState.None);
 			diffToolItem.command = {
-				command: 'ethical-tools.createDiff',
+				command: 'ethical-dev-tools.createDiff',
 				title: 'Create Diff View',
 				tooltip: 'Open a new diff view'
 			};
@@ -124,7 +124,7 @@ class EthicalDevToolProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 
 			const base64ToolItem = new vscode.TreeItem('Base64 Tool', vscode.TreeItemCollapsibleState.None);
 			base64ToolItem.command = {
-				command: 'ethical-tools.base64Tool',
+				command: 'ethical-dev-tools.base64Tool',
 				title: 'Base64 Tool',
 				tooltip: 'Open the Base64 tool'
 			};

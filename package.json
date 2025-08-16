@@ -1,43 +1,66 @@
 {
-  "name": "ethical-tools",
-  "displayName": "Ethical Tools",
-  "description": "A set of ethical tools for developers.",
+  "name": "ethical-dev-tools",
+  "displayName": "Ethical Dev Tools",
+  "description": "A set of ethical developer tools, including a side-by-side diff viewer and a Base64 encoder/decoder. Boost your productivity with these essential utilities.",
   "version": "0.0.1",
   "publisher": "",
-  "icon": "media/ethical-tools.png",
+  "icon": "media/ethical-dev-tools.png",
   "engines": {
     "vscode": "^1.91.0"
   },
   "categories": [
-    "Other"
+    "Utilities",
+    "Developer Tools"
+  ],
+  "keywords": [
+    "diff",
+    "compare",
+    "base64",
+    "encode",
+    "decode",
+    "ethical",
+    "developer tools",
+    "utilities",
+    "file compare",
+    "text compare",
+    "diff viewer",
+    "base64 encoder",
+    "base64 decoder",
+    "developer utilities",
+    "productivity",
+    "coding tools",
+    "development tools",
+    "json tools",
+    "xml tools",
+    "text manipulation",
+    "string utilities"
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "ethical-tools.createDiff",
-        "title": "Ethical Tools: Create Diff View"
+        "command": "ethical-dev-tools.createDiff",
+        "title": "Ethical Dev Tools: Create Diff View"
       },
       {
-        "command": "ethical-tools.base64Tool",
-        "title": "Ethical Tools: Base64 Tool"
+        "command": "ethical-dev-tools.base64Tool",
+        "title": "Ethical Dev Tools: Base64 Tool"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "ethical-tools-sidebar",
-          "title": "Ethical Tools",
+          "id": "ethical-dev-tools-sidebar",
+          "title": "ETHICAL DEV TOOLS",
           "icon": "media/icon.svg"
         }
       ]
     },
     "views": {
-      "ethical-tools-sidebar": [
+      "ethical-dev-tools-sidebar": [
         {
-          "id": "ethical-tools-diff",
-          "name": "Diff Tool"
+          "id": "ethical-dev-tools-diff"
         }
       ]
     }
@@ -60,5 +83,13 @@
     "typescript": "^5.9.2",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2"
+  },
+  "homepage": "https://github.com/your-username/your-repo-name",
+  "bugs": {
+    "url": "https://github.com/your-username/your-repo-name/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/your-repo-name.git"
   }
 }

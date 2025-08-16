@@ -1,6 +1,6 @@
-# ethical-tools README
+# Ethical Dev Tools README
 
-This is the README for your extension "ethical-tools". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "Ethical Dev Tools". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
