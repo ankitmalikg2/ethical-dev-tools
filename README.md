@@ -1,8 +1,8 @@
 # Ethical Dev Tools
 
-[![Version](https://img.shields.io/visual-studio-marketplace/v/ankitmalikg2.ethical-dev-tools.svg)](https://marketplace.visualstudio.com/items?itemName=ankitmalikg2.ethical-dev-tools)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/ankitmalikg2.ethical-dev-tools.svg)](https://marketplace.visualstudio.com/items?itemName=ankitmalikg2.ethical-dev-tools)
-[![Ratings](https://img.shields.io/visual-studio-marketplace/r/ankitmalikg2.ethical-dev-tools.svg)](https://marketplace.visualstudio.com/items?itemName=ankitmalikg2.ethical-dev-tools)
+[![Version](https://img.shields.io/visual-studio-marketplace/v/AnkitMalikTools.ethical-dev-tools.svg)](https://marketplace.visualstudio.com/items?itemName=AnkitMalikTools.ethical-dev-tools)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/AnkitMalikTools.ethical-dev-tools.svg)](https://marketplace.visualstudio.com/items?itemName=AnkitMalikTools.ethical-dev-tools)
+[![Ratings](https://img.shields.io/visual-studio-marketplace/r/AnkitMalikTools.ethical-dev-tools.svg)](https://marketplace.visualstudio.com/items?itemName=AnkitMalikTools.ethical-dev-tools)
 
 **Ethical Dev Tools** is a collection of essential utilities for Visual Studio Code, designed to boost your productivity and streamline your development workflow. This extension provides a side-by-side diff viewer and a Base64 encoder/decoder, with more tools to come.
 

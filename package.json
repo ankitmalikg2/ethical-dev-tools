@@ -2,7 +2,7 @@
   "name": "ethical-dev-tools",
   "displayName": "Ethical Dev Tools",
   "description": "A set of ethical developer tools, including a side-by-side diff viewer and a Base64 encoder/decoder. Boost your productivity with these essential utilities.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "AnkitMalikTools",
   "icon": "media/ethical-dev-tools.png",
   "engines": {
