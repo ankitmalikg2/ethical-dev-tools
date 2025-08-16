@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base64 Tool</title>
+    <style>
+        body {
+            font-family: var(--vscode-font-family);
+            color: var(--vscode-editor-foreground);
+            background-color: var(--vscode-editor-background);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            padding: 2rem;
+            background-color: var(--vscode-sideBar-background);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--vscode-titleBar-activeForeground);
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 1rem;
+            background-color: var(--vscode-input-background);
+            color: var(--vscode-input-foreground);
+            border: 1px solid var(--vscode-input-border);
+            border-radius: 4px;
+            padding: 0.5rem;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        button {
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+        }
+        button:hover {
+            background-color: var(--vscode-button-hoverBackground);
+        }
+        button:active {
+            background-color: var(--vscode-button-background);
+        }
+        #outputText {
+            background-color: var(--vscode-textBlockQuote-background);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Base64 Tool</h1>
+        <textarea id="inputText" placeholder="Enter text or Base64 here..."></textarea>
+        <div class="buttons">
+            <button id="toBase64">Encode Base64</button>
+            <button id="fromBase64">Decode Base64</button>
+        </div>
+        <textarea id="outputText" placeholder="Result..." readonly></textarea>
+    </div>
+    <script>
+        const vscode = acquireVsCodeApi();
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+
+        document.getElementById('toBase64').addEventListener('click', () => {
+            try {
+                outputText.value = btoa(inputText.value);
+            } catch (e) {
+                outputText.value = "Error: Invalid character for Base64 encoding.";
+            }
+        });
+
+        document.getElementById('fromBase64').addEventListener('click', () => {
+            try {
+                outputText.value = atob(inputText.value);
+            } catch (e) {
+                outputText.value = "Error: Invalid Base64 string.";
+            }
+        });
+    </script>
+</body>
+</html>
