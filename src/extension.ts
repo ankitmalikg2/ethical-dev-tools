@@ -90,7 +90,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Register the TreeDataProvider for the sidebar
 	const ethicalDevToolProvider = new EthicalDevToolProvider();
-	vscode.window.registerTreeDataProvider('ethical-dev-tools-diff', ethicalDevToolProvider);
+	vscode.window.registerTreeDataProvider('ethical-dev-tools-view', ethicalDevToolProvider);
 
 	context.subscriptions.push(createDiffCommand, base64ToolCommand);
 }

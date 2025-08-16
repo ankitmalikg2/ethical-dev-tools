@@ -1,71 +1,49 @@
-# Ethical Dev Tools README
+# Ethical Dev Tools
 
-This is the README for your extension "Ethical Dev Tools". After writing up a brief description, we recommend including the following sections.
+[![Version](https://img.shields.io/visual-studio-marketplace/v/ankitmalikg2.ethical-dev-tools.svg)](https://marketplace.visualstudio.com/items?itemName=ankitmalikg2.ethical-dev-tools)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/ankitmalikg2.ethical-dev-tools.svg)](https://marketplace.visualstudio.com/items?itemName=ankitmalikg2.ethical-dev-tools)
+[![Ratings](https://img.shields.io/visual-studio-marketplace/r/ankitmalikg2.ethical-dev-tools.svg)](https://marketplace.visualstudio.com/items?itemName=ankitmalikg2.ethical-dev-tools)
+
+**Ethical Dev Tools** is a collection of essential utilities for Visual Studio Code, designed to boost your productivity and streamline your development workflow. This extension provides a side-by-side diff viewer and a Base64 encoder/decoder, with more tools to come.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### Side-by-Side Diff Viewer
+Easily compare two files or text snippets with the intuitive side-by-side diff viewer. Quickly identify changes and merge code with confidence.
 
-For example if there is an image subfolder under your extension project workspace:
+### Base64 Encoder/Decoder
 
-\!\[feature X\]\(images/feature-x.png\)
+Encode and decode Base64 strings directly within VS Code. No need to switch to a browser or other tools for this common task.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
 
-## Requirements
+![Diff-Viewer and Base64-Tool Demo](https://github.com/ankitmalikg2/ethical-dev-tools/raw/main/media/dev-tools-working.gif)  
+*Demo of the Diff Viewer and Base64 Tool in action.*
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## Installation
 
-## Extension Settings
+1.  Open the **Extensions** sidebar in VS Code.
+2.  Search for `Ethical Dev Tools`.
+3.  Click **Install**.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+Alternatively, you can install the extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=ankitmalikg2.ethical-dev-tools).
 
-For example:
+## Usage
 
-This extension contributes the following settings:
+### Diff Viewer
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+1.  Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac).
+2.  Run the `Ethical Dev Tools: Create Diff View` command.
 
-## Known Issues
+### Base64 Tool
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+1.  Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac).
+2.  Run the `Ethical Dev Tools: Base64 Tool` command.
 
-## Release Notes
 
-Users appreciate release notes as you update your extension.
+## Changelog
 
-### 1.0.0
+See the [CHANGELOG.md](CHANGELOG.md) file for details on each release.
 
-Initial release of ...
+## Contributing
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Contributions are welcome! Please see the [contributing guidelines](https://github.com/ankitmalikg2/ethical-dev-tools/blob/main/CONTRIBUTING.md) for more information.
