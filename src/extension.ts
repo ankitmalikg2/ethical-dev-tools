@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as yaml from 'js-yaml';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -86,13 +87,65 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
+	let yamlPanel: vscode.WebviewPanel | undefined = undefined;
+	let yamlValidatorCommand = vscode.commands.registerCommand('ethical-dev-tools.yamlValidator', () => {
+		if (yamlPanel) {
+			yamlPanel.reveal(vscode.ViewColumn.One);
+		} else {
+			yamlPanel = vscode.window.createWebviewPanel(
+				'yamlValidator',
+				'YAML Validator',
+				vscode.ViewColumn.One,
+				{
+					enableScripts: true,
+					retainContextWhenHidden: true,
+					localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'src')]
+				}
+			);
+
+			yamlPanel.webview.html = getWebviewContent(context, 'yamlValidator.html');
+
+			yamlPanel.onDidDispose(
+				() => {
+					yamlPanel = undefined;
+				},
+				null,
+				context.subscriptions
+			);
+
+			yamlPanel.webview.onDidReceiveMessage(
+				async message => {
+					switch (message.command) {
+						case 'validateYaml':
+							try {
+								yaml.load(message.yaml);
+								yamlPanel?.webview.postMessage({
+									command: 'validationResult',
+									isValid: true
+								});
+							} catch (error: any) {
+								yamlPanel?.webview.postMessage({
+									command: 'validationResult',
+									isValid: false,
+									error: error.message
+								});
+							}
+							return;
+					}
+				},
+				undefined,
+				context.subscriptions
+			);
+		}
+	});
+
 
 
 	// Register the TreeDataProvider for the sidebar
 	const ethicalDevToolProvider = new EthicalDevToolProvider();
 	vscode.window.registerTreeDataProvider('ethical-dev-tools-view', ethicalDevToolProvider);
 
-	context.subscriptions.push(createDiffCommand, base64ToolCommand);
+	context.subscriptions.push(createDiffCommand, base64ToolCommand, yamlValidatorCommand);
 }
 
 export function deactivate() {}
@@ -130,7 +183,15 @@ class EthicalDevToolProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 			};
 			base64ToolItem.iconPath = new vscode.ThemeIcon('key');
 
-			return Promise.resolve([diffToolItem, base64ToolItem]);
+			const yamlValidatorItem = new vscode.TreeItem('YAML Validator', vscode.TreeItemCollapsibleState.None);
+			yamlValidatorItem.command = {
+				command: 'ethical-dev-tools.yamlValidator',
+				title: 'YAML Validator',
+				tooltip: 'Validate YAML syntax'
+			};
+			yamlValidatorItem.iconPath = new vscode.ThemeIcon('check');
+
+			return Promise.resolve([diffToolItem, base64ToolItem, yamlValidatorItem]);
 		}
 	}
 }
