@@ -4,7 +4,7 @@
 [![Installs](https://img.shields.io/visual-studio-marketplace/i/AnkitMalikTools.ethical-dev-tools.svg)](https://marketplace.visualstudio.com/items?itemName=AnkitMalikTools.ethical-dev-tools)
 [![Ratings](https://img.shields.io/visual-studio-marketplace/r/AnkitMalikTools.ethical-dev-tools.svg)](https://marketplace.visualstudio.com/items?itemName=AnkitMalikTools.ethical-dev-tools)
 
-**Ethical Dev Tools** is a collection of essential utilities for Visual Studio Code, designed to boost your productivity and streamline your development workflow. This extension provides a side-by-side diff viewer and a Base64 encoder/decoder, with more tools to come.
+**Ethical Dev Tools** is a collection of essential utilities for Visual Studio Code, designed to boost your productivity and streamline your development workflow. This extension provides a side-by-side diff viewer, Base64 encoder/decoder, and YAML validator, with more tools to come.
 
 ## Features
 
@@ -14,6 +14,10 @@ Easily compare two files or text snippets with the intuitive side-by-side diff v
 ### Base64 Encoder/Decoder
 
 Encode and decode Base64 strings directly within VS Code. No need to switch to a browser or other tools for this common task.
+
+### YAML Validator
+
+Validate YAML syntax and structure instantly. Perfect for configuration files, Docker Compose, Kubernetes manifests, and CI/CD pipelines. Get immediate feedback on syntax errors with detailed error messages.
 
 
 ![Diff-Viewer and Base64-Tool Demo](https://github.com/ankitmalikg2/ethical-dev-tools/raw/main/media/dev-tools-working.gif)  
@@ -38,6 +42,12 @@ Alternatively, you can install the extension from the [VS Code Marketplace](http
 
 1.  Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac).
 2.  Run the `Ethical Dev Tools: Base64 Tool` command.
+
+### YAML Validator
+
+1.  Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac).
+2.  Run the `Ethical Dev Tools: YAML Validator` command.
+3.  Paste your YAML content and click "Validate YAML" to check syntax.
 
 
 ## Changelog

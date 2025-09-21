@@ -1,7 +1,7 @@
 {
   "name": "ethical-dev-tools",
-  "displayName": "Ethical Dev Tools (File Diff & Base64 Encode/Decoder)",
-  "description": "A set of ethical developer tools, including a side-by-side diff viewer and a Base64 encoder/decoder. Boost your productivity with these essential utilities.",
+  "displayName": "Ethical Dev Tools (File Diff, Base64 & YAML Validator)",
+  "description": "Essential developer tools including side-by-side diff viewer, Base64 encoder/decoder, and YAML validator. Boost productivity with file comparison, encoding utilities, and YAML syntax validation.",
   "version": "0.0.3",
   "publisher": "AnkitMalikTools",
   "icon": "media/ethical-dev-tools.png",
@@ -17,6 +17,11 @@
     "base64",
     "encode",
     "decode",
+    "yaml",
+    "yaml validator",
+    "yaml syntax",
+    "yaml parser",
+    "yaml checker",
     "ethical",
     "developer tools",
     "utilities",
@@ -32,7 +37,10 @@
     "json tools",
     "xml tools",
     "text manipulation",
-    "string utilities"
+    "string utilities",
+    "configuration files",
+    "devops tools",
+    "syntax validation"
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
