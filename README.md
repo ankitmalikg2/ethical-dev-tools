@@ -4,12 +4,12 @@
 [![Installs](https://img.shields.io/visual-studio-marketplace/i/AnkitMalikTools.ethical-dev-tools.svg)](https://marketplace.visualstudio.com/items?itemName=AnkitMalikTools.ethical-dev-tools)
 [![Ratings](https://img.shields.io/visual-studio-marketplace/r/AnkitMalikTools.ethical-dev-tools.svg)](https://marketplace.visualstudio.com/items?itemName=AnkitMalikTools.ethical-dev-tools)
 
-**Ethical Dev Tools** is a collection of essential utilities for Visual Studio Code, designed to boost your productivity and streamline your development workflow. This extension provides a side-by-side diff viewer, Base64 encoder/decoder, and YAML validator, with more tools to come.
+**Ethical Dev Tools** is a collection of essential utilities for Visual Studio Code, designed to boost your productivity and streamline your development workflow. This extension provides a diff checker, Base64 encoder/decoder, and YAML validator, with more tools to come.
 
 ## Features
 
-### Side-by-Side Diff Viewer
-Easily compare two files or text snippets with the intuitive side-by-side diff viewer. Quickly identify changes and merge code with confidence.
+### Diff Checker
+Easily compare two files or text snippets with the intuitive side-by-side diff checker. Quickly identify changes and merge code with confidence.
 
 ### Base64 Encoder/Decoder
 
@@ -33,7 +33,7 @@ Alternatively, you can install the extension from the [VS Code Marketplace](http
 
 ## Usage
 
-### Diff Viewer
+### Diff Checker
 
 1.  Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac).
 2.  Run the `Ethical Dev Tools: Create Diff View` command.
