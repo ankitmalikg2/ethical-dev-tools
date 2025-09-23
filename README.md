@@ -35,7 +35,7 @@ Convert between Unix timestamps (epoch time) and human-readable dates effortless
 2.  Search for `Ethical Dev Tools`.
 3.  Click **Install**.
 
-Alternatively, you can install the extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=ankitmalikg2.ethical-dev-tools).
+Alternatively, you can install the extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=AnkitMalikTools.ethical-dev-tools).
 
 
 ## Usage
