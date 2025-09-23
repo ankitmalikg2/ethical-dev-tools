@@ -64,6 +64,10 @@
       {
         "command": "ethical-dev-tools.yamlValidator",
         "title": "Ethical Dev Tools: YAML Validator"
+      },
+      {
+        "command": "ethical-dev-tools.jwtTool",
+        "title": "Ethical Dev Tools: JWT Tool"
       }
     ],
     "viewsContainers": {
@@ -113,6 +117,8 @@
   },
   "dependencies": {
     "@types/js-yaml": "^4.0.9",
-    "js-yaml": "^4.1.0"
+    "@types/jsonwebtoken": "^9.0.10",
+    "js-yaml": "^4.1.0",
+    "jsonwebtoken": "^9.0.2"
   }
 }

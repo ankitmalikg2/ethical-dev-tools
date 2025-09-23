@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
+import * as jwt from 'jsonwebtoken';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -139,13 +140,101 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
+	let jwtPanel: vscode.WebviewPanel | undefined = undefined;
+	let jwtToolCommand = vscode.commands.registerCommand('ethical-dev-tools.jwtTool', () => {
+		if (jwtPanel) {
+			jwtPanel.reveal(vscode.ViewColumn.One);
+		} else {
+			jwtPanel = vscode.window.createWebviewPanel(
+				'jwtTool',
+				'JWT Tool',
+				vscode.ViewColumn.One,
+				{
+					enableScripts: true,
+					retainContextWhenHidden: true,
+					localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'src')]
+				}
+			);
 
+			jwtPanel.webview.html = getWebviewContent(context, 'jwtTool.html');
+
+			jwtPanel.onDidDispose(
+				() => {
+					jwtPanel = undefined;
+				},
+				null,
+				context.subscriptions
+			);
+
+			jwtPanel.webview.onDidReceiveMessage(
+				async message => {
+					switch (message.command) {
+						case 'decodeJWT':
+							try {
+								const decoded = jwt.decode(message.token, { complete: true });
+								if (!decoded) {
+									throw new Error('Invalid JWT token');
+								}
+
+								let verified: boolean | undefined = undefined;
+								if (message.secret) {
+									try {
+										jwt.verify(message.token, message.secret);
+										verified = true;
+									} catch {
+										verified = false;
+									}
+								}
+
+								jwtPanel?.webview.postMessage({
+									command: 'jwtResult',
+									success: true,
+									header: decoded.header,
+									payload: decoded.payload,
+									verified: verified
+								});
+							} catch (error: any) {
+								jwtPanel?.webview.postMessage({
+									command: 'jwtResult',
+									success: false,
+									error: error.message
+								});
+							}
+							return;
+						case 'createJWT':
+							try {
+								const payload = JSON.parse(message.payload);
+								const signOptions: jwt.SignOptions = {};
+								if (message.algorithm) {
+									signOptions.algorithm = message.algorithm;
+								}
+								const token = jwt.sign(payload, message.secret, signOptions);
+								jwtPanel?.webview.postMessage({
+									command: 'createResult',
+									success: true,
+									token: token
+								});
+							} catch (error: any) {
+								jwtPanel?.webview.postMessage({
+									command: 'createResult',
+									success: false,
+									error: error.message
+								});
+							}
+							return;
+					}
+				},
+				undefined,
+				context.subscriptions
+			);
+		}
+	});
 
 	// Register the TreeDataProvider for the sidebar
 	const ethicalDevToolProvider = new EthicalDevToolProvider();
 	vscode.window.registerTreeDataProvider('ethical-dev-tools-view', ethicalDevToolProvider);
 
-	context.subscriptions.push(createDiffCommand, base64ToolCommand, yamlValidatorCommand);
+	context.subscriptions.push(createDiffCommand, base64ToolCommand, yamlValidatorCommand, jwtToolCommand);
 }
 
 export function deactivate() {}
@@ -191,7 +280,15 @@ class EthicalDevToolProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 			};
 			yamlValidatorItem.iconPath = new vscode.ThemeIcon('check');
 
-			return Promise.resolve([diffToolItem, base64ToolItem, yamlValidatorItem]);
+			const jwtToolItem = new vscode.TreeItem('JWT Tool', vscode.TreeItemCollapsibleState.None);
+			jwtToolItem.command = {
+				command: 'ethical-dev-tools.jwtTool',
+				title: 'JWT Tool',
+				tooltip: 'Decode and verify JWT tokens'
+			};
+			jwtToolItem.iconPath = new vscode.ThemeIcon('shield');
+
+			return Promise.resolve([diffToolItem, base64ToolItem, yamlValidatorItem, jwtToolItem]);
 		}
 	}
 }
