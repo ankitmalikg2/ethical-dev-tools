@@ -4,7 +4,7 @@
 [![Installs](https://img.shields.io/visual-studio-marketplace/i/AnkitMalikTools.ethical-dev-tools.svg)](https://marketplace.visualstudio.com/items?itemName=AnkitMalikTools.ethical-dev-tools)
 [![Ratings](https://img.shields.io/visual-studio-marketplace/r/AnkitMalikTools.ethical-dev-tools.svg)](https://marketplace.visualstudio.com/items?itemName=AnkitMalikTools.ethical-dev-tools)
 
-**Ethical Dev Tools** is a collection of essential utilities for Visual Studio Code, designed to boost your productivity and streamline your development workflow. This extension provides a Diff Checker, Base64 Encoder/Decoder, YAML Validator, and a powerful JWT Tool for creating, decoding, and verifying JSON Web Tokens (JWTs). More tools coming soon!
+**Ethical Dev Tools** is a collection of essential utilities for Visual Studio Code, designed to boost your productivity and streamline your development workflow. This extension provides a Diff Checker, Base64 Encoder/Decoder, YAML Validator, JWT Tool for creating, decoding, and verifying JSON Web Tokens (JWTs), and an Epoch Tool for timestamp conversions. More tools coming soon!
 
 
 ## Features
@@ -20,6 +20,9 @@ Validate YAML syntax and structure instantly. Perfect for configuration files, D
 
 ### JWT Tool (Create, Decode & Verify JWT)
 Create, decode, and verify JSON Web Tokens (JWT) directly in VS Code. Supports all major algorithms (HS256, RS256, ES256, and more). Instantly sign, inspect, and validate JWTs for authentication, authorization, and secure API development. Choose algorithm, input payload and secret, and get your JWT in seconds.
+
+### Epoch Tool
+Convert between Unix timestamps (epoch time) and human-readable dates effortlessly. Convert epoch timestamps to readable dates in UTC, ISO, and local formats. Convert human-readable dates back to epoch timestamps in both seconds and milliseconds. Perfect for debugging, API development, and working with time-based data.
 
 
 
@@ -57,11 +60,17 @@ Alternatively, you can install the extension from the [VS Code Marketplace](http
 4. For creation, enter your payload (JSON), secret, and select the desired algorithm (HS256, RS256, etc.).
 5. Instantly copy, inspect, and validate JWTs for your authentication and API workflows.
 
+### Epoch Tool
+1. Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac).
+2. Run the `Ethical Dev Tools: Epoch Tool` command.
+3. Convert epoch timestamps to human-readable dates or vice versa.
+4. View current Unix timestamp in real-time.
+
 
 
 ## Why Use Ethical Dev Tools?
-- All-in-one developer toolkit for file comparison, encoding, YAML, and JWT workflows
-- No need for external JWT websites or tools—everything runs locally in VS Code
+- All-in-one developer toolkit for file comparison, encoding, YAML, JWT, and timestamp workflows
+- No need for external websites or tools—everything runs locally in VS Code
 - Secure, privacy-friendly, and open source
 - Designed for productivity and modern developer needs
 
@@ -76,4 +85,4 @@ Contributions are welcome! Please see the [contributing guidelines](https://gith
 
 ---
 
-**Keywords:** JWT, JSON Web Token, JWT Tool, VS Code JWT, decode JWT, create JWT, verify JWT, sign JWT, JWT algorithm, HMAC, RSA, ECDSA, PS256, HS256, RS256, ES256, authentication, authorization, developer tools, YAML, diff, base64, productivity, secure API
+**Keywords:** JWT, JSON Web Token, JWT Tool, VS Code JWT, decode JWT, create JWT, verify JWT, sign JWT, JWT algorithm, HMAC, RSA, ECDSA, PS256, HS256, RS256, ES256, authentication, authorization, developer tools, YAML, diff, base64, epoch, timestamp, unix time, date converter, productivity, secure API

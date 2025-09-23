@@ -140,6 +140,34 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
+	let epochPanel: vscode.WebviewPanel | undefined = undefined;
+	let epochToolCommand = vscode.commands.registerCommand('ethical-dev-tools.epochTool', () => {
+		if (epochPanel) {
+			epochPanel.reveal(vscode.ViewColumn.One);
+		} else {
+			epochPanel = vscode.window.createWebviewPanel(
+				'epochTool',
+				'Epoch Tool',
+				vscode.ViewColumn.One,
+				{
+					enableScripts: true,
+					retainContextWhenHidden: true,
+					localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'src')]
+				}
+			);
+
+			epochPanel.webview.html = getWebviewContent(context, 'epochTool.html');
+
+			epochPanel.onDidDispose(
+				() => {
+					epochPanel = undefined;
+				},
+				null,
+				context.subscriptions
+			);
+		}
+	});
+
 	let jwtPanel: vscode.WebviewPanel | undefined = undefined;
 	let jwtToolCommand = vscode.commands.registerCommand('ethical-dev-tools.jwtTool', () => {
 		if (jwtPanel) {
@@ -234,7 +262,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const ethicalDevToolProvider = new EthicalDevToolProvider();
 	vscode.window.registerTreeDataProvider('ethical-dev-tools-view', ethicalDevToolProvider);
 
-	context.subscriptions.push(createDiffCommand, base64ToolCommand, yamlValidatorCommand, jwtToolCommand);
+	context.subscriptions.push(createDiffCommand, base64ToolCommand, yamlValidatorCommand, jwtToolCommand, epochToolCommand);
 }
 
 export function deactivate() {}
@@ -288,7 +316,15 @@ class EthicalDevToolProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 			};
 			jwtToolItem.iconPath = new vscode.ThemeIcon('shield');
 
-			return Promise.resolve([diffToolItem, base64ToolItem, yamlValidatorItem, jwtToolItem]);
+			const epochToolItem = new vscode.TreeItem('Epoch Tool', vscode.TreeItemCollapsibleState.None);
+			epochToolItem.command = {
+				command: 'ethical-dev-tools.epochTool',
+				title: 'Epoch Tool',
+				tooltip: 'Convert between epoch timestamps and human readable dates'
+			};
+			epochToolItem.iconPath = new vscode.ThemeIcon('clock');
+
+			return Promise.resolve([diffToolItem, base64ToolItem, yamlValidatorItem, jwtToolItem, epochToolItem]);
 		}
 	}
 }

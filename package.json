@@ -1,6 +1,6 @@
 {
   "name": "ethical-dev-tools",
-  "displayName": "Ethical Dev Tools (Diff Checker, Base64 Encoder, YAML Validator & JWT Tool)",
+  "displayName": "Ethical Dev Tools (Diff Checker, Base64 Encoder, YAML Validator, JWT Tool, Epoch)",
   "description": "Essential developer tools for VS Code: side-by-side diff viewer, Base64 encoder/decoder, YAML validator, and JWT Tool for creating, decoding, and verifying JSON Web Tokens. Boost productivity with file comparison, encoding utilities, YAML syntax validation, and secure JWT workflows.",
   "version": "0.0.4",
   "publisher": "AnkitMalikTools",
@@ -61,7 +61,13 @@
     "devops tools",
     "syntax validation",
     "side by side",
-    "version control"
+    "version control",
+    "epoch",
+    "timestamp",
+    "unix time",
+    "date converter",
+    "time converter",
+    "epoch converter"
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
@@ -82,6 +88,10 @@
       {
         "command": "ethical-dev-tools.jwtTool",
         "title": "Ethical Dev Tools: JWT Tool"
+      },
+      {
+        "command": "ethical-dev-tools.epochTool",
+        "title": "Ethical Dev Tools: Epoch Tool"
       }
     ],
     "viewsContainers": {
