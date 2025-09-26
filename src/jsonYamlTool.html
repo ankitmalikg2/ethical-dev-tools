@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON <> YAML Converter</title>
+    <style>
+        body {
+            font-family: var(--vscode-font-family);
+            color: var(--vscode-foreground);
+            background-color: var(--vscode-editor-background);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+        }
+        .column {
+            flex: 1;
+        }
+        h1 {
+            color: var(--vscode-foreground);
+            margin-bottom: 20px;
+        }
+        h2 {
+            margin-top: 0;
+        }
+        textarea {
+            width: 100%;
+            height: 400px;
+            background-color: var(--vscode-input-background);
+            color: var(--vscode-input-foreground);
+            border: 1px solid var(--vscode-input-border);
+            border-radius: 3px;
+            padding: 10px;
+            font-family: var(--vscode-editor-font-family);
+            font-size: var(--vscode-editor-font-size);
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+        }
+        button {
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: var(--vscode-button-hoverBackground);
+        }
+        .error-message {
+            color: var(--vscode-errorForeground);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>JSON <> YAML Converter</h1>
+    <div class="container">
+        <div class="column">
+            <h2>JSON</h2>
+            <textarea id="jsonInput" placeholder="Paste your JSON content here..."></textarea>
+        </div>
+        <div class="controls">
+            <button onclick="convertJsonToYaml()">To YAML &rarr;</button>
+            <button onclick="convertYamlToJson()">&larr; To JSON</button>
+        </div>
+        <div class="column">
+            <h2>YAML</h2>
+            <textarea id="yamlInput" placeholder="Paste your YAML content here..."></textarea>
+        </div>
+    </div>
+    <div id="error-container" class="error-message"></div>
+
+    <script>
+        const vscode = acquireVsCodeApi();
+        const jsonInput = document.getElementById('jsonInput');
+        const yamlInput = document.getElementById('yamlInput');
+        const errorContainer = document.getElementById('error-container');
+
+        function convertJsonToYaml() {
+            const jsonContent = jsonInput.value;
+            if (!jsonContent.trim()) {
+                errorContainer.textContent = 'Please enter JSON content to convert.';
+                return;
+            }
+            vscode.postMessage({
+                command: 'jsonToYaml',
+                json: jsonContent
+            });
+        }
+
+        function convertYamlToJson() {
+            const yamlContent = yamlInput.value;
+            if (!yamlContent.trim()) {
+                errorContainer.textContent = 'Please enter YAML content to convert.';
+                return;
+            }
+            vscode.postMessage({
+                command: 'yamlToJson',
+                yaml: yamlContent
+            });
+        }
+
+        window.addEventListener('message', event => {
+            const message = event.data;
+            errorContainer.textContent = ''; // Clear previous errors
+
+            switch (message.command) {
+                case 'yamlResult':
+                    if (message.success) {
+                        yamlInput.value = message.yaml;
+                    } else {
+                        errorContainer.textContent = 'Error converting to YAML: ' + message.error;
+                    }
+                    break;
+                case 'jsonResult':
+                    if (message.success) {
+                        jsonInput.value = message.json;
+                    } else {
+                        errorContainer.textContent = 'Error converting to JSON: ' + message.error;
+                    }
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>

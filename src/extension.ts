@@ -258,11 +258,82 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
+	let jsonYamlPanel: vscode.WebviewPanel | undefined = undefined;
+	let jsonYamlToolCommand = vscode.commands.registerCommand('ethical-dev-tools.jsonYamlTool', () => {
+		if (jsonYamlPanel) {
+			jsonYamlPanel.reveal(vscode.ViewColumn.One);
+		} else {
+			jsonYamlPanel = vscode.window.createWebviewPanel(
+				'jsonYamlTool',
+				'JSON <> YAML Converter',
+				vscode.ViewColumn.One,
+				{
+					enableScripts: true,
+					retainContextWhenHidden: true,
+					localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'src')]
+				}
+			);
+
+			jsonYamlPanel.webview.html = getWebviewContent(context, 'jsonYamlTool.html');
+
+			jsonYamlPanel.onDidDispose(
+				() => {
+					jsonYamlPanel = undefined;
+				},
+				null,
+				context.subscriptions
+			);
+
+			jsonYamlPanel.webview.onDidReceiveMessage(
+				async message => {
+					switch (message.command) {
+						case 'jsonToYaml':
+							try {
+								const jsonObject = JSON.parse(message.json);
+								const yamlString = yaml.dump(jsonObject);
+								jsonYamlPanel?.webview.postMessage({
+									command: 'yamlResult',
+									success: true,
+									yaml: yamlString
+								});
+							} catch (error: any) {
+								jsonYamlPanel?.webview.postMessage({
+									command: 'yamlResult',
+									success: false,
+									error: error.message
+								});
+							}
+							return;
+						case 'yamlToJson':
+							try {
+								const jsonObject = yaml.load(message.yaml);
+								const jsonString = JSON.stringify(jsonObject, null, 2);
+								jsonYamlPanel?.webview.postMessage({
+									command: 'jsonResult',
+									success: true,
+									json: jsonString
+								});
+							} catch (error: any) {
+								jsonYamlPanel?.webview.postMessage({
+									command: 'jsonResult',
+									success: false,
+									error: error.message
+								});
+							}
+							return;
+					}
+				},
+				undefined,
+				context.subscriptions
+			);
+		}
+	});
+
 	// Register the TreeDataProvider for the sidebar
 	const ethicalDevToolProvider = new EthicalDevToolProvider();
 	vscode.window.registerTreeDataProvider('ethical-dev-tools-view', ethicalDevToolProvider);
 
-	context.subscriptions.push(createDiffCommand, base64ToolCommand, yamlValidatorCommand, jwtToolCommand, epochToolCommand);
+	context.subscriptions.push(createDiffCommand, base64ToolCommand, yamlValidatorCommand, jwtToolCommand, epochToolCommand, jsonYamlToolCommand);
 }
 
 export function deactivate() {}
@@ -324,7 +395,15 @@ class EthicalDevToolProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 			};
 			epochToolItem.iconPath = new vscode.ThemeIcon('clock');
 
-			return Promise.resolve([diffToolItem, base64ToolItem, yamlValidatorItem, jwtToolItem, epochToolItem]);
+			const jsonYamlToolItem = new vscode.TreeItem('JSON <> YAML Converter', vscode.TreeItemCollapsibleState.None);
+			jsonYamlToolItem.command = {
+				command: 'ethical-dev-tools.jsonYamlTool',
+				title: 'JSON <> YAML Converter',
+				tooltip: 'Convert between JSON and YAML'
+			};
+			jsonYamlToolItem.iconPath = new vscode.ThemeIcon('file-code');
+
+			return Promise.resolve([diffToolItem, base64ToolItem, yamlValidatorItem, jwtToolItem, epochToolItem, jsonYamlToolItem]);
 		}
 	}
 }
