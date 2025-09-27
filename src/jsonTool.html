@@ -1,29 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSON Tools</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        body, html {
+            height: 100%;
             margin: 0;
-            padding: 1em;
+            padding: 0;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--vscode-editor-background);
             color: var(--vscode-editor-foreground);
+            display: flex;
+            flex-direction: column;
         }
 
         .container {
             display: flex;
-            height: calc(100vh - 2em);
+            flex-grow: 1;
             gap: 1em;
+            padding: 1em;
+            min-height: 0;
         }
 
         .column {
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-width: 0;
+        }
+
+        .editor-container {
+            position: relative;
+            flex-grow: 1;
+            display: flex;
         }
 
         textarea {
@@ -35,14 +47,17 @@
             background-color: var(--vscode-input-background);
             color: var(--vscode-input-foreground);
             padding: 0.5em;
+            padding-right: 40px; /* Space for copy icon */
             resize: none;
+            font-family: var(--vscode-editor-font-family);
         }
 
         .controls {
-            margin-bottom: 1em;
             display: flex;
+            flex-direction: column;
+            justify-content: center;
             gap: 0.5em;
-            flex-wrap: wrap;
+            padding: 0 1em;
         }
 
         button {
@@ -60,39 +75,91 @@
 
         h3 {
             margin-top: 0;
+            margin-bottom: 5px;
+        }
+
+        .status-message {
+            padding: 0 1em 1em 1em;
+            height: 20px;
         }
 
         .error {
             color: var(--vscode-errorForeground);
-            margin-top: 0.5em;
         }
 
         .success {
             color: var(--vscode-testing-iconPassed);
-            margin-top: 0.5em;
+        }
+
+        .copy-icon {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            padding: 4px;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .copy-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--vscode-icon-foreground);
+        }
+        .copy-icon:hover {
+            background-color: var(--vscode-toolbar-hoverBackground);
+        }
+        .copy-feedback {
+            position: absolute;
+            top: 10px;
+            right: 40px;
+            font-size: 12px;
+            color: var(--vscode-descriptionForeground);
+            background-color: var(--vscode-input-background);
+            padding: 2px 5px;
+            border-radius: 3px;
+            display: none; /* Hidden by default */
         }
     </style>
 </head>
-
 <body>
+    <svg width="0" height="0" style="display:none;">
+        <symbol id="icon-copy" viewBox="0 0 24 24">
+            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+        </symbol>
+    </svg>
+
     <div class="container">
         <div class="column">
             <h3>Input JSON</h3>
-            <textarea id="json-input" placeholder="Enter JSON here..."></textarea>
-            <div id="validation-message" style="margin-top: 0.5em;"></div>
+            <div class="editor-container">
+                <textarea id="json-input" placeholder="Enter JSON here..."></textarea>
+                <div class="copy-icon" id="copy-input" title="Copy Input">
+                    <svg><use xlink:href="#icon-copy"></use></svg>
+                </div>
+                <div class="copy-feedback" id="feedback-input">Copied!</div>
+            </div>
+        </div>
+        <div class="controls">
+            <button id="validate-btn">Validate</button>
+            <button id="prettify-btn">Prettify &rarr;</button>
+            <button id="minify-btn">Minify &rarr;</button>
+            <button id="stringify-btn">Stringify &rarr;</button>
+            <button id="unstringify-btn">Unstringify &rarr;</button>
         </div>
         <div class="column">
             <h3>Output</h3>
-            <textarea id="json-output" readonly placeholder="Output will appear here..."></textarea>
+            <div class="editor-container">
+                <textarea id="json-output" readonly placeholder="Output will appear here..."></textarea>
+                <div class="copy-icon" id="copy-output" title="Copy Output">
+                    <svg><use xlink:href="#icon-copy"></use></svg>
+                </div>
+                <div class="copy-feedback" id="feedback-output">Copied!</div>
+            </div>
         </div>
     </div>
-    <div class="controls">
-        <button id="validate-btn">Validate</button>
-        <button id="prettify-btn">Prettify</button>
-        <button id="minify-btn">Minify</button>
-        <button id="stringify-btn">Stringify</button>
-        <button id="unstringify-btn">Unstringify</button>
-    </div>
+    <div id="validation-message" class="status-message"></div>
 
     <script>
         (function () {
@@ -101,53 +168,62 @@
             const jsonOutput = document.getElementById('json-output');
             const validationMessage = document.getElementById('validation-message');
 
-            document.getElementById('validate-btn').addEventListener('click', () => {
-                vscode.postMessage({
-                    command: 'validateJson',
-                    json: jsonInput.value
-                });
-            });
+            const copyInputIcon = document.getElementById('copy-input');
+            const copyOutputIcon = document.getElementById('copy-output');
+            const feedbackInput = document.getElementById('feedback-input');
+            const feedbackOutput = document.getElementById('feedback-output');
 
-            document.getElementById('prettify-btn').addEventListener('click', () => {
+            function postCommand(command) {
                 vscode.postMessage({
-                    command: 'prettifyJson',
+                    command: command,
                     json: jsonInput.value
                 });
-            });
+            }
 
-            document.getElementById('minify-btn').addEventListener('click', () => {
-                vscode.postMessage({
-                    command: 'minifyJson',
-                    json: jsonInput.value
-                });
-            });
+            document.getElementById('validate-btn').addEventListener('click', () => postCommand('validateJson'));
+            document.getElementById('prettify-btn').addEventListener('click', () => postCommand('prettifyJson'));
+            document.getElementById('minify-btn').addEventListener('click', () => postCommand('minifyJson'));
+            document.getElementById('stringify-btn').addEventListener('click', () => postCommand('stringifyJson'));
+            document.getElementById('unstringify-btn').addEventListener('click', () => postCommand('unstringifyJson'));
 
-            document.getElementById('stringify-btn').addEventListener('click', () => {
-                vscode.postMessage({
-                    command: 'stringifyJson',
-                    json: jsonInput.value
-                });
-            });
+            function showCopyFeedback(feedbackElement) {
+                feedbackElement.style.display = 'block';
+                setTimeout(() => {
+                    feedbackElement.style.display = 'none';
+                }, 2000);
+            }
 
-            document.getElementById('unstringify-btn').addEventListener('click', () => {
-                vscode.postMessage({
-                    command: 'unstringifyJson',
-                    json: jsonInput.value
+            function copyToClipboard(text, feedbackElement) {
+                if (!text) return;
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopyFeedback(feedbackElement);
+                }, () => {
+                    validationMessage.className = 'error';
+                    validationMessage.textContent = 'Failed to copy to clipboard.';
                 });
-            });
+            }
+
+            copyInputIcon.addEventListener('click', () => copyToClipboard(jsonInput.value, feedbackInput));
+            copyOutputIcon.addEventListener('click', () => copyToClipboard(jsonOutput.value, feedbackOutput));
 
             window.addEventListener('message', event => {
                 const message = event.data;
+                validationMessage.textContent = ''; // Clear previous messages
                 switch (message.command) {
                     case 'validationResult':
                         validationMessage.className = message.isValid ? 'success' : 'error';
                         validationMessage.textContent = message.isValid ? 'JSON is valid.' : `Invalid JSON: ${message.error}`;
+                        if (message.isValid) {
+                           jsonOutput.value = ''; // Clear output on successful validation
+                        }
                         break;
                     case 'jsonResult':
                         if (message.success) {
                             jsonOutput.value = message.result;
-                            validationMessage.textContent = '';
+                            validationMessage.className = 'success';
+                            validationMessage.textContent = 'Operation successful.';
                         } else {
+                            jsonOutput.value = '';
                             validationMessage.className = 'error';
                             validationMessage.textContent = `Error: ${message.error}`;
                         }
@@ -157,5 +233,4 @@
         }());
     </script>
 </body>
-
 </html>
