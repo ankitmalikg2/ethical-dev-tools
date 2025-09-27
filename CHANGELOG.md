@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.6] - 2024-12-19
+
+### Added
+- JSON <> YAML Converter for bidirectional conversion
+- JSON Tools with validate, prettify, minify, stringify, and unstringify functions
+- Enhanced UI with copy functionality for all tools
+- Improved error handling and user feedback
+
+### Fixed
+- Performance improvements for large file processing
+- Better error messages for invalid inputs
+
 ## [0.0.5] - 2025-01-27
 
 ### Added
