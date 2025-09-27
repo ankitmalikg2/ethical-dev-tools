@@ -437,7 +437,17 @@ export function deactivate() {}
 
 function getWebviewContent(context: vscode.ExtensionContext, viewName: string) {
 	const htmlPath = vscode.Uri.joinPath(context.extensionUri, 'src', viewName);
-	const htmlContent = fs.readFileSync(htmlPath.fsPath, 'utf8');
+	const cssPath = vscode.Uri.joinPath(context.extensionUri, 'src', 'common-styles.css');
+	
+	let htmlContent = fs.readFileSync(htmlPath.fsPath, 'utf8');
+	const cssContent = fs.readFileSync(cssPath.fsPath, 'utf8');
+	
+	// Replace CSS link with inline styles for webview
+	htmlContent = htmlContent.replace(
+		'<link rel="stylesheet" href="common-styles.css">',
+		`<style>${cssContent}</style>`
+	);
+	
 	return htmlContent;
 }
 

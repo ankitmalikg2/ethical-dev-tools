@@ -4,110 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Epoch Tool</title>
-    <style>
-        body {
-            font-family: var(--vscode-font-family);
-            color: var(--vscode-foreground);
-            background-color: var(--vscode-editor-background);
-            padding: 20px;
-            margin: 0;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        h1 {
-            color: var(--vscode-foreground);
-            margin-bottom: 20px;
-        }
-        .section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid var(--vscode-panel-border);
-            border-radius: 5px;
-            background-color: var(--vscode-editor-background);
-        }
-        .section h2 {
-            margin-top: 0;
-            color: var(--vscode-foreground);
-        }
-        .input-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--vscode-foreground);
-        }
-        input, textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid var(--vscode-input-border);
-            background-color: var(--vscode-input-background);
-            color: var(--vscode-input-foreground);
-            border-radius: 3px;
-            font-family: var(--vscode-font-family);
-            box-sizing: border-box;
-        }
-        button {
-            background-color: var(--vscode-button-background);
-            color: var(--vscode-button-foreground);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 3px;
-            cursor: pointer;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-        button:hover {
-            background-color: var(--vscode-button-hoverBackground);
-        }
-        .result {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 3px;
-            background-color: var(--vscode-textCodeBlock-background);
-            border: 1px solid var(--vscode-panel-border);
-        }
-        .current-time {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--vscode-foreground);
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: var(--vscode-textCodeBlock-background);
-            border-radius: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="common-styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Epoch Tool</h1>
+    <div class="edt-container">
+        <h1 class="edt-title">Epoch Tool</h1>
         
-        <div class="current-time" id="currentTime">
+        <div class="edt-current-time" id="currentTime">
             Current Unix Timestamp: <span id="currentEpoch"></span>
         </div>
 
-        <div class="section">
-            <h2>Convert Epoch to Human Readable</h2>
-            <div class="input-group">
-                <label for="epochInput">Unix Timestamp (seconds or milliseconds):</label>
-                <input type="text" id="epochInput" placeholder="e.g., 1640995200 or 1640995200000">
+        <div class="edt-section">
+            <h2 class="edt-subtitle edt-subtitle--section">Convert Epoch to Human Readable</h2>
+            <div class="edt-input-group">
+                <label class="edt-label" for="epochInput">Unix Timestamp (seconds or milliseconds):</label>
+                <input class="edt-input" type="text" id="epochInput" placeholder="e.g., 1640995200 or 1640995200000">
             </div>
-            <button onclick="convertEpochToHuman()">Convert to Date</button>
-            <div class="result" id="epochResult" style="display: none;"></div>
+            <button class="edt-button" onclick="convertEpochToHuman()">Convert to Date</button>
+            <div class="edt-code edt-hidden" id="epochResult"></div>
         </div>
 
-        <div class="section">
-            <h2>Convert Human Readable to Epoch</h2>
-            <div class="input-group">
-                <label for="dateInput">Date (YYYY-MM-DD HH:MM:SS or ISO format):</label>
-                <input type="text" id="dateInput" placeholder="e.g., 2022-01-01 00:00:00 or 2022-01-01T00:00:00Z">
+        <div class="edt-section">
+            <h2 class="edt-subtitle edt-subtitle--section">Convert Human Readable to Epoch</h2>
+            <div class="edt-input-group">
+                <label class="edt-label" for="dateInput">Date (YYYY-MM-DD HH:MM:SS or ISO format):</label>
+                <input class="edt-input" type="text" id="dateInput" placeholder="e.g., 2022-01-01 00:00:00 or 2022-01-01T00:00:00Z">
             </div>
-            <button onclick="convertHumanToEpoch()">Convert to Epoch</button>
-            <button onclick="useCurrentTime()">Use Current Time</button>
-            <div class="result" id="dateResult" style="display: none;"></div>
+            <button class="edt-button edt-mt-1" onclick="convertHumanToEpoch()">Convert to Epoch</button>
+            <button class="edt-button edt-mt-1" onclick="useCurrentTime()">Use Current Time</button>
+            <div class="edt-code edt-hidden" id="dateResult"></div>
         </div>
     </div>
 
@@ -122,7 +47,7 @@
             const resultDiv = document.getElementById('epochResult');
             
             if (!epochInput) {
-                resultDiv.style.display = 'block';
+                resultDiv.classList.remove('edt-hidden');
                 resultDiv.innerHTML = '<span style="color: var(--vscode-errorForeground);">Please enter an epoch timestamp</span>';
                 return;
             }
@@ -145,15 +70,10 @@
                 const isoString = date.toISOString();
                 const localString = date.toString();
                 
-                resultDiv.style.display = 'block';
-                resultDiv.innerHTML = `
-                    <strong>Converted Date:</strong><br>
-                    <strong>UTC:</strong> ${utcString}<br>
-                    <strong>ISO:</strong> ${isoString}<br>
-                    <strong>Local:</strong> ${localString}
-                `;
+                resultDiv.classList.remove('edt-hidden');
+                resultDiv.innerHTML = `<strong>Converted Date:</strong><br><strong>UTC:</strong> ${utcString}<br><strong>ISO:</strong> ${isoString}<br><strong>Local:</strong> ${localString}`;
             } catch (error) {
-                resultDiv.style.display = 'block';
+                resultDiv.classList.remove('edt-hidden');
                 resultDiv.innerHTML = '<span style="color: var(--vscode-errorForeground);">Invalid epoch timestamp</span>';
             }
         }
@@ -163,7 +83,7 @@
             const resultDiv = document.getElementById('dateResult');
             
             if (!dateInput) {
-                resultDiv.style.display = 'block';
+                resultDiv.classList.remove('edt-hidden');
                 resultDiv.innerHTML = '<span style="color: var(--vscode-errorForeground);">Please enter a date</span>';
                 return;
             }
@@ -178,14 +98,10 @@
                 const epochSeconds = Math.floor(date.getTime() / 1000);
                 const epochMilliseconds = date.getTime();
                 
-                resultDiv.style.display = 'block';
-                resultDiv.innerHTML = `
-                    <strong>Converted Epoch:</strong><br>
-                    <strong>Seconds:</strong> ${epochSeconds}<br>
-                    <strong>Milliseconds:</strong> ${epochMilliseconds}
-                `;
+                resultDiv.classList.remove('edt-hidden');
+                resultDiv.innerHTML = `<strong>Converted Epoch:</strong><br><strong>Seconds:</strong> ${epochSeconds}<br><strong>Milliseconds:</strong> ${epochMilliseconds}`;
             } catch (error) {
-                resultDiv.style.display = 'block';
+                resultDiv.classList.remove('edt-hidden');
                 resultDiv.innerHTML = '<span style="color: var(--vscode-errorForeground);">Invalid date format</span>';
             }
         }
