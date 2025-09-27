@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Tools</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 1em;
+            background-color: var(--vscode-editor-background);
+            color: var(--vscode-editor-foreground);
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 2em);
+            gap: 1em;
+        }
+
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            border-radius: 5px;
+            border: 1px solid var(--vscode-input-border);
+            background-color: var(--vscode-input-background);
+            color: var(--vscode-input-foreground);
+            padding: 0.5em;
+            resize: none;
+        }
+
+        .controls {
+            margin-bottom: 1em;
+            display: flex;
+            gap: 0.5em;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 0.5em 1em;
+            border-radius: 5px;
+            border: 1px solid var(--vscode-button-border, transparent);
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: var(--vscode-button-hoverBackground);
+        }
+
+        h3 {
+            margin-top: 0;
+        }
+
+        .error {
+            color: var(--vscode-errorForeground);
+            margin-top: 0.5em;
+        }
+
+        .success {
+            color: var(--vscode-testing-iconPassed);
+            margin-top: 0.5em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="column">
+            <h3>Input JSON</h3>
+            <textarea id="json-input" placeholder="Enter JSON here..."></textarea>
+            <div id="validation-message" style="margin-top: 0.5em;"></div>
+        </div>
+        <div class="column">
+            <h3>Output</h3>
+            <textarea id="json-output" readonly placeholder="Output will appear here..."></textarea>
+        </div>
+    </div>
+    <div class="controls">
+        <button id="validate-btn">Validate</button>
+        <button id="prettify-btn">Prettify</button>
+        <button id="minify-btn">Minify</button>
+        <button id="stringify-btn">Stringify</button>
+        <button id="unstringify-btn">Unstringify</button>
+    </div>
+
+    <script>
+        (function () {
+            const vscode = acquireVsCodeApi();
+            const jsonInput = document.getElementById('json-input');
+            const jsonOutput = document.getElementById('json-output');
+            const validationMessage = document.getElementById('validation-message');
+
+            document.getElementById('validate-btn').addEventListener('click', () => {
+                vscode.postMessage({
+                    command: 'validateJson',
+                    json: jsonInput.value
+                });
+            });
+
+            document.getElementById('prettify-btn').addEventListener('click', () => {
+                vscode.postMessage({
+                    command: 'prettifyJson',
+                    json: jsonInput.value
+                });
+            });
+
+            document.getElementById('minify-btn').addEventListener('click', () => {
+                vscode.postMessage({
+                    command: 'minifyJson',
+                    json: jsonInput.value
+                });
+            });
+
+            document.getElementById('stringify-btn').addEventListener('click', () => {
+                vscode.postMessage({
+                    command: 'stringifyJson',
+                    json: jsonInput.value
+                });
+            });
+
+            document.getElementById('unstringify-btn').addEventListener('click', () => {
+                vscode.postMessage({
+                    command: 'unstringifyJson',
+                    json: jsonInput.value
+                });
+            });
+
+            window.addEventListener('message', event => {
+                const message = event.data;
+                switch (message.command) {
+                    case 'validationResult':
+                        validationMessage.className = message.isValid ? 'success' : 'error';
+                        validationMessage.textContent = message.isValid ? 'JSON is valid.' : `Invalid JSON: ${message.error}`;
+                        break;
+                    case 'jsonResult':
+                        if (message.success) {
+                            jsonOutput.value = message.result;
+                            validationMessage.textContent = '';
+                        } else {
+                            validationMessage.className = 'error';
+                            validationMessage.textContent = `Error: ${message.error}`;
+                        }
+                        break;
+                }
+            });
+        }());
+    </script>
+</body>
+
+</html>
