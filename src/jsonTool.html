@@ -13,15 +13,20 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--vscode-editor-background);
             color: var(--vscode-editor-foreground);
+        }
+
+        body {
             display: flex;
             flex-direction: column;
+            padding: 1em;
+            box-sizing: border-box;
+            height: 100%;
         }
 
         .container {
             display: flex;
             flex-grow: 1;
             gap: 1em;
-            padding: 1em;
             min-height: 0;
         }
 
@@ -79,8 +84,9 @@
         }
 
         .status-message {
-            padding: 0 1em 1em 1em;
+            margin-top: 1em;
             height: 20px;
+            text-align: center;
         }
 
         .error {
