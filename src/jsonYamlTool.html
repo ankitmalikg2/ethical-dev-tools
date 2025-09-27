@@ -41,14 +41,39 @@
                 </div>
             </div>
         </div>
-        <div id="error-container" class="edt-error-message"></div>
+    </div>
+
+    <div id="message-modal" class="edt-modal">
+        <div class="edt-modal__content">
+            <span class="edt-modal__close">&times;</span>
+            <p id="modal-message-text"></p>
+        </div>
     </div>
 
     <script>
         const vscode = acquireVsCodeApi();
         const jsonInput = document.getElementById('jsonInput');
         const yamlInput = document.getElementById('yamlInput');
-        const errorContainer = document.getElementById('error-container');
+        const modal = document.getElementById('message-modal');
+        const modalContent = modal.querySelector('.edt-modal__content');
+        const modalMessageText = document.getElementById('modal-message-text');
+        const closeButton = document.querySelector('.edt-modal__close');
+
+        function showModal(message, type) {
+            modalMessageText.textContent = message;
+            modalContent.className = 'edt-modal__content edt-modal__content--' + type;
+            modal.style.display = 'block';
+        }
+
+        closeButton.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
         const copyJsonIcon = document.getElementById('copyJson');
         const copyYamlIcon = document.getElementById('copyYaml');
         const feedbackJson = document.getElementById('feedbackJson');
@@ -57,7 +82,7 @@
         function convertJsonToYaml() {
             const jsonContent = jsonInput.value;
             if (!jsonContent.trim()) {
-                errorContainer.textContent = 'Please enter JSON content to convert.';
+                showModal('Please enter JSON content to convert.', 'error');
                 return;
             }
             vscode.postMessage({
@@ -69,7 +94,7 @@
         function convertYamlToJson() {
             const yamlContent = yamlInput.value;
             if (!yamlContent.trim()) {
-                errorContainer.textContent = 'Please enter YAML content to convert.';
+                showModal('Please enter YAML content to convert.', 'error');
                 return;
             }
             vscode.postMessage({
@@ -90,7 +115,7 @@
             navigator.clipboard.writeText(text).then(() => {
                 showCopyFeedback(feedbackElement);
             }, () => {
-                errorContainer.textContent = 'Failed to copy to clipboard.';
+                showModal('Failed to copy to clipboard.', 'error');
             });
         }
 
@@ -104,21 +129,20 @@
 
         window.addEventListener('message', event => {
             const message = event.data;
-            errorContainer.textContent = '';
 
             switch (message.command) {
                 case 'yamlResult':
                     if (message.success) {
                         yamlInput.value = message.yaml;
                     } else {
-                        errorContainer.textContent = 'Error converting to YAML: ' + message.error;
+                        showModal('Error converting to YAML: ' + message.error, 'error');
                     }
                     break;
                 case 'jsonResult':
                     if (message.success) {
                         jsonInput.value = message.json;
                     } else {
-                        errorContainer.textContent = 'Error converting to JSON: ' + message.error;
+                        showModal('Error converting to JSON: ' + message.error, 'error');
                     }
                     break;
             }
