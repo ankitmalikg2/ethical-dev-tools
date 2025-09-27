@@ -71,7 +71,13 @@
     "formatting tools",
     "json to yaml",
     "yaml to json",
-    "json yaml converter"
+    "json yaml converter",
+    "json",
+    "json validator",
+    "json prettify",
+    "json minify",
+    "json stringify",
+    "json unstringify"
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
@@ -100,6 +106,10 @@
       {
         "command": "ethical-dev-tools.jsonYamlTool",
         "title": "Ethical Dev Tools: JSON <> YAML Converter"
+      },
+      {
+        "command": "ethical-dev-tools.jsonTool",
+        "title": "Ethical Dev Tools: JSON Tools"
       }
     ],
     "viewsContainers": {

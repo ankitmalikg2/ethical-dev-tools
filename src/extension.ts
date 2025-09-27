@@ -333,7 +333,104 @@ export function activate(context: vscode.ExtensionContext) {
 	const ethicalDevToolProvider = new EthicalDevToolProvider();
 	vscode.window.registerTreeDataProvider('ethical-dev-tools-view', ethicalDevToolProvider);
 
-	context.subscriptions.push(createDiffCommand, base64ToolCommand, yamlValidatorCommand, jwtToolCommand, epochToolCommand, jsonYamlToolCommand);
+	let jsonToolPanel: vscode.WebviewPanel | undefined = undefined;
+	let jsonToolCommand = vscode.commands.registerCommand('ethical-dev-tools.jsonTool', () => {
+		if (jsonToolPanel) {
+			jsonToolPanel.reveal(vscode.ViewColumn.One);
+		} else {
+			jsonToolPanel = vscode.window.createWebviewPanel(
+				'jsonTool',
+				'JSON Tools',
+				vscode.ViewColumn.One,
+				{
+					enableScripts: true,
+					retainContextWhenHidden: true,
+					localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'src')]
+				}
+			);
+
+			jsonToolPanel.webview.html = getWebviewContent(context, 'jsonTool.html');
+
+			jsonToolPanel.onDidDispose(
+				() => {
+					jsonToolPanel = undefined;
+				},
+				null,
+				context.subscriptions
+			);
+
+			jsonToolPanel.webview.onDidReceiveMessage(
+				async message => {
+					try {
+						switch (message.command) {
+							case 'validateJson':
+								JSON.parse(message.json);
+								jsonToolPanel?.webview.postMessage({
+									command: 'validationResult',
+									isValid: true
+								});
+								break;
+							case 'prettifyJson':
+								const pretty = JSON.stringify(JSON.parse(message.json), null, 2);
+								jsonToolPanel?.webview.postMessage({
+									command: 'jsonResult',
+									success: true,
+									result: pretty
+								});
+								break;
+							case 'minifyJson':
+								const mini = JSON.stringify(JSON.parse(message.json));
+								jsonToolPanel?.webview.postMessage({
+									command: 'jsonResult',
+									success: true,
+									result: mini
+								});
+								break;
+							case 'stringifyJson':
+								const stringified = JSON.stringify(message.json);
+								jsonToolPanel?.webview.postMessage({
+									command: 'jsonResult',
+									success: true,
+									result: stringified
+								});
+								break;
+							case 'unstringifyJson':
+								const parsedOnce = JSON.parse(message.json);
+								if (typeof parsedOnce !== 'string') {
+									throw new Error("Unstringify requires a JSON string literal as input (e.g., \"{\\\"key\\\":\\\"value\\\"}\"). The provided input is already a valid JSON object. You may want to use Prettify or Minify instead.");
+								}
+								const parsedTwice = JSON.parse(parsedOnce);
+								const result = JSON.stringify(parsedTwice, null, 2);
+								jsonToolPanel?.webview.postMessage({
+									command: 'jsonResult',
+									success: true,
+									result: result
+								});
+								break;
+						}
+					} catch (error: any) {
+						if (message.command === 'validateJson') {
+							jsonToolPanel?.webview.postMessage({
+								command: 'validationResult',
+								isValid: false,
+								error: error.message
+							});
+						} else {
+							jsonToolPanel?.webview.postMessage({
+								command: 'jsonResult',
+								success: false,
+								error: error.message
+							});
+						}
+					}
+				},
+				undefined,
+				context.subscriptions
+			);
+		}
+	});
+
+	context.subscriptions.push(createDiffCommand, base64ToolCommand, yamlValidatorCommand, jwtToolCommand, epochToolCommand, jsonYamlToolCommand, jsonToolCommand);
 }
 
 export function deactivate() {}
@@ -403,7 +500,15 @@ class EthicalDevToolProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 			};
 			jsonYamlToolItem.iconPath = new vscode.ThemeIcon('file-code');
 
-			return Promise.resolve([diffToolItem, base64ToolItem, yamlValidatorItem, jwtToolItem, epochToolItem, jsonYamlToolItem]);
+			const jsonToolItem = new vscode.TreeItem('JSON Tools', vscode.TreeItemCollapsibleState.None);
+			jsonToolItem.command = {
+				command: 'ethical-dev-tools.jsonTool',
+				title: 'JSON Tools',
+				tooltip: 'Open JSON tools'
+			};
+			jsonToolItem.iconPath = new vscode.ThemeIcon('json');
+
+			return Promise.resolve([diffToolItem, base64ToolItem, yamlValidatorItem, jwtToolItem, epochToolItem, jsonYamlToolItem, jsonToolItem]);
 		}
 	}
 }
