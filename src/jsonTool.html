@@ -4,208 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSON Tools</title>
-    <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--vscode-editor-background);
-            color: var(--vscode-editor-foreground);
-        }
-
-        body {
-            display: flex;
-            flex-direction: column;
-            padding: 1em;
-            box-sizing: border-box;
-            height: 100%;
-        }
-
-        .container {
-            display: flex;
-            flex-grow: 1;
-            gap: 8px;
-            min-height: 0;
-        }
-
-        .column {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-
-        .editor-container {
-            position: relative;
-            flex-grow: 1;
-            display: flex;
-        }
-
-        textarea {
-            width: 100%;
-            height: 100%;
-            box-sizing: border-box;
-            border-radius: 5px;
-            border: 1px solid var(--vscode-input-border);
-            background-color: var(--vscode-input-background);
-            color: var(--vscode-input-foreground);
-            padding: 0.5em;
-            padding-right: 40px; /* Space for copy icon */
-            resize: none;
-            font-family: var(--vscode-editor-font-family);
-        }
-
-        .controls {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 0.5em;
-            padding: 0;
-        }
-
-        button {
-            padding: 0.5em 1em;
-            border-radius: 5px;
-            border: 1px solid var(--vscode-button-border, transparent);
-            background-color: var(--vscode-button-background);
-            color: var(--vscode-button-foreground);
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: var(--vscode-button-hoverBackground);
-        }
-
-        h3 {
-            margin-top: 0;
-            margin-bottom: 5px;
-        }
-
-        .copy-icon {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            cursor: pointer;
-            width: 24px;
-            height: 24px;
-            padding: 4px;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .copy-icon svg {
-            width: 100%;
-            height: 100%;
-            fill: var(--vscode-icon-foreground);
-        }
-        .copy-icon:hover {
-            background-color: var(--vscode-toolbar-hoverBackground);
-        }
-        .copy-feedback {
-            position: absolute;
-            top: 10px;
-            right: 40px;
-            font-size: 12px;
-            color: var(--vscode-descriptionForeground);
-            background-color: var(--vscode-input-background);
-            padding: 2px 5px;
-            border-radius: 3px;
-            display: none; /* Hidden by default */
-        }
-
-        /* Modal Dialog Styles */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-
-        .modal-content {
-            background-color: var(--vscode-editor-background);
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid var(--vscode-input-border);
-            border-radius: 5px;
-            width: 80%;
-            max-width: 500px;
-            text-align: center;
-        }
-
-        .modal-content.success {
-            border-color: var(--vscode-testing-iconPassed);
-        }
-
-        .modal-content.error {
-            border-color: var(--vscode-errorForeground);
-        }
-
-        .close-button {
-            color: var(--vscode-foreground);
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            line-height: 1;
-        }
-
-        .close-button:hover,
-        .close-button:focus {
-            color: var(--vscode-descriptionForeground);
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-    </style>
+    <link rel="stylesheet" href="common-styles.css">
 </head>
 <body>
-    <svg width="0" height="0" style="display:none;">
+    <svg class="edt-svg-hidden">
         <symbol id="icon-copy" viewBox="0 0 24 24">
             <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
         </symbol>
     </svg>
 
-    <div class="container">
-        <div class="column">
-            <h3>Input JSON</h3>
-            <div class="editor-container">
-                <textarea id="json-input" placeholder="Enter JSON here..."></textarea>
-                <div class="copy-icon" id="copy-input" title="Copy Input">
-                    <svg><use xlink:href="#icon-copy"></use></svg>
+    <div class="edt-container--full">
+        <div class="edt-layout">
+            <div class="edt-column">
+                <h3 class="edt-subtitle">Input JSON</h3>
+                <div class="edt-editor edt-editor--full">
+                    <textarea id="json-input" class="edt-textarea edt-textarea--full edt-textarea--with-icon" placeholder="Enter JSON here..."></textarea>
+                    <div class="edt-icon" id="copy-input" title="Copy Input">
+                        <svg><use xlink:href="#icon-copy"></use></svg>
+                    </div>
+                    <div class="edt-feedback" id="feedback-input">Copied!</div>
                 </div>
-                <div class="copy-feedback" id="feedback-input">Copied!</div>
             </div>
-        </div>
-        <div class="controls">
-            <button id="validate-btn">Validate</button>
-            <button id="prettify-btn">Prettify &rarr;</button>
-            <button id="minify-btn">Minify &rarr;</button>
-            <button id="stringify-btn">Stringify &rarr;</button>
-            <button id="unstringify-btn">Unstringify &rarr;</button>
-        </div>
-        <div class="column">
-            <h3>Output</h3>
-            <div class="editor-container">
-                <textarea id="json-output" readonly placeholder="Output will appear here..."></textarea>
-                <div class="copy-icon" id="copy-output" title="Copy Output">
-                    <svg><use xlink:href="#icon-copy"></use></svg>
+            <div class="edt-controls">
+                <button id="validate-btn" class="edt-button edt-button--compact">Validate</button>
+                <button id="prettify-btn" class="edt-button edt-button--compact">Prettify &rarr;</button>
+                <button id="minify-btn" class="edt-button edt-button--compact">Minify &rarr;</button>
+                <button id="stringify-btn" class="edt-button edt-button--compact">Stringify &rarr;</button>
+                <button id="unstringify-btn" class="edt-button edt-button--compact">Unstringify &rarr;</button>
+            </div>
+            <div class="edt-column">
+                <h3 class="edt-subtitle">Output</h3>
+                <div class="edt-editor edt-editor--full">
+                    <textarea id="json-output" class="edt-textarea edt-textarea--full edt-textarea--with-icon" readonly placeholder="Output will appear here..."></textarea>
+                    <div class="edt-icon" id="copy-output" title="Copy Output">
+                        <svg><use xlink:href="#icon-copy"></use></svg>
+                    </div>
+                    <div class="edt-feedback" id="feedback-output">Copied!</div>
                 </div>
-                <div class="copy-feedback" id="feedback-output">Copied!</div>
             </div>
         </div>
     </div>
 
-    <!-- The Modal -->
-    <div id="message-modal" class="modal">
-      <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <p id="modal-message-text"></p>
-      </div>
+    <div id="message-modal" class="edt-modal">
+        <div class="edt-modal__content">
+            <span class="edt-modal__close">&times;</span>
+            <p id="modal-message-text"></p>
+        </div>
     </div>
 
     <script>
@@ -220,13 +64,13 @@
             const feedbackOutput = document.getElementById('feedback-output');
 
             const modal = document.getElementById('message-modal');
-            const modalContent = modal.querySelector('.modal-content');
+            const modalContent = modal.querySelector('.edt-modal__content');
             const modalMessageText = document.getElementById('modal-message-text');
-            const closeButton = document.querySelector('.close-button');
+            const closeButton = document.querySelector('.edt-modal__close');
 
             function showModal(message, type) {
                 modalMessageText.textContent = message;
-                modalContent.className = 'modal-content ' + type; // success or error
+                modalContent.className = 'edt-modal__content edt-modal__content--' + type;
                 modal.style.display = 'block';
             }
 
@@ -278,7 +122,7 @@
                     case 'validationResult':
                         if (message.isValid) {
                             showModal('JSON is valid.', 'success');
-                            jsonOutput.value = ''; // Clear output on successful validation
+                            jsonOutput.value = '';
                         } else {
                             showModal(`Invalid JSON: ${message.error}`, 'error');
                         }

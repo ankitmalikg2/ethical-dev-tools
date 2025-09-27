@@ -1,0 +1,380 @@
+/* Ethical Dev Tools - Common Styles */
+
+/* Reset & Base */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: var(--vscode-font-family);
+    color: var(--vscode-foreground);
+    background-color: var(--vscode-editor-background);
+}
+
+/* Layout Components */
+.edt-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.edt-container--full {
+    width: 100%;
+    max-width: none;
+    height: 100vh;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.edt-container--centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 90%;
+    max-width: 800px;
+    padding: 2rem;
+    background-color: var(--vscode-sideBar-background);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.edt-layout {
+    display: flex;
+    flex-grow: 1;
+    gap: 10px;
+    min-height: 0;
+}
+
+.edt-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.edt-controls {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding: 0;
+}
+
+.edt-controls--horizontal {
+    flex-direction: row;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.edt-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid var(--vscode-panel-border);
+    border-radius: 5px;
+    background-color: var(--vscode-editor-background);
+}
+
+/* Typography */
+.edt-title {
+    color: var(--vscode-foreground);
+    margin: 0 0 20px 0;
+    text-align: center;
+}
+
+.edt-title--main {
+    color: var(--vscode-titleBar-activeForeground);
+    margin-bottom: 2rem;
+}
+
+.edt-subtitle {
+    margin: 0 0 5px 0;
+    padding-left: 5px;
+    color: var(--vscode-foreground);
+}
+
+.edt-subtitle--section {
+    margin-top: 0;
+}
+
+/* Form Components */
+.edt-input-group {
+    margin-bottom: 15px;
+}
+
+.edt-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--vscode-foreground);
+}
+
+.edt-input, .edt-textarea, .edt-select {
+    width: 100%;
+    background-color: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    border: 1px solid var(--vscode-input-border);
+    border-radius: 3px;
+    padding: 10px;
+    font-family: var(--vscode-editor-font-family);
+    font-size: var(--vscode-editor-font-size);
+}
+
+.edt-textarea {
+    height: 150px;
+    resize: vertical;
+    font-family: var(--vscode-editor-font-family);
+}
+
+.edt-textarea--large {
+    height: 300px;
+}
+
+.edt-textarea--full {
+    height: 100%;
+    resize: none;
+}
+
+.edt-textarea--readonly {
+    background-color: var(--vscode-textBlockQuote-background);
+}
+
+.edt-textarea--with-icon {
+    padding-right: 40px;
+}
+
+/* Button Components */
+.edt-button {
+    background-color: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s ease;
+}
+
+.edt-button:hover {
+    background-color: var(--vscode-button-hoverBackground);
+}
+
+.edt-button--small {
+    padding: 8px 16px;
+}
+
+.edt-button--compact {
+    padding: 8px 12px;
+}
+
+.edt-button--large {
+    padding: 12px 24px;
+}
+
+/* Tab Components */
+.edt-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.edt-tab {
+    flex: 1;
+    border-bottom: 2px solid transparent;
+    font-weight: normal;
+    transition: background 0.2s, border-bottom 0.2s, font-weight 0.2s;
+}
+
+.edt-tab--active {
+    background-color: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    border-bottom: 2.5px solid var(--vscode-button-foreground);
+    font-weight: bold;
+}
+
+/* Editor Components */
+.edt-editor {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+}
+
+.edt-editor--full {
+    height: 100%;
+}
+
+/* Icon Components */
+.edt-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    padding: 4px;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.edt-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: var(--vscode-icon-foreground);
+}
+
+.edt-icon:hover {
+    background-color: var(--vscode-toolbar-hoverBackground);
+}
+
+.edt-feedback {
+    position: absolute;
+    top: 10px;
+    right: 40px;
+    font-size: 12px;
+    color: var(--vscode-descriptionForeground);
+    background-color: var(--vscode-input-background);
+    padding: 2px 5px;
+    border-radius: 3px;
+    display: none;
+}
+
+/* Result & Message Components */
+.edt-result {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 3px;
+    min-height: 20px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+.edt-result--success {
+    background-color: var(--vscode-inputValidation-infoBackground);
+    border: 1px solid var(--vscode-inputValidation-infoBorder);
+    color: var(--vscode-inputValidation-infoForeground);
+}
+
+.edt-result--error {
+    background-color: var(--vscode-inputValidation-errorBackground);
+    border: 1px solid var(--vscode-inputValidation-errorBorder);
+    color: var(--vscode-inputValidation-errorForeground);
+}
+
+.edt-error-message {
+    color: var(--vscode-errorForeground);
+    margin-top: 10px;
+    height: 20px;
+    padding-left: 5px;
+    text-align: center;
+}
+
+.edt-current-time {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--vscode-foreground);
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: var(--vscode-textCodeBlock-background);
+    border-radius: 5px;
+}
+
+/* Code Display */
+.edt-code {
+    background-color: var(--vscode-textCodeBlock-background);
+    border: 1px solid var(--vscode-input-border);
+    border-radius: 3px;
+    padding: 10px;
+    margin-top: 10px;
+    font-family: var(--vscode-editor-font-family);
+    white-space: pre-wrap;
+    overflow-x: auto;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+/* Modal Components */
+.edt-modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.edt-modal__content {
+    background-color: var(--vscode-editor-background);
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid var(--vscode-input-border);
+    border-radius: 5px;
+    width: 80%;
+    max-width: 500px;
+    text-align: center;
+}
+
+.edt-modal__content--success {
+    border-color: var(--vscode-testing-iconPassed);
+}
+
+.edt-modal__content--error {
+    border-color: var(--vscode-errorForeground);
+}
+
+.edt-modal__close {
+    color: var(--vscode-foreground);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.edt-modal__close:hover {
+    color: var(--vscode-descriptionForeground);
+}
+
+/* Diff Specific Styles */
+.edt-diff-controls {
+    padding: 10px;
+    border-bottom: 1px solid var(--vscode-panel-border);
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* Utility Classes */
+.edt-hidden {
+    display: none !important;
+}
+
+.edt-text-center {
+    text-align: center;
+}
+
+.edt-mb-0 { margin-bottom: 0; }
+.edt-mb-1 { margin-bottom: 10px; }
+.edt-mb-2 { margin-bottom: 20px; }
+.edt-mt-1 { margin-top: 10px; }
+.edt-mt-2 { margin-top: 20px; }
+
+.edt-flex { display: flex; }
+.edt-flex-1 { flex: 1; }
+.edt-gap-1 { gap: 10px; }
+
+/* SVG Icons */
+.edt-svg-hidden {
+    width: 0;
+    height: 0;
+    display: none;
+}
