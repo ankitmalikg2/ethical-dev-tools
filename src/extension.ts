@@ -397,7 +397,7 @@ export function activate(context: vscode.ExtensionContext) {
 							case 'unstringifyJson':
 								const parsedOnce = JSON.parse(message.json);
 								if (typeof parsedOnce !== 'string') {
-									throw new Error("Input is a valid JSON but not a string literal. Use Prettify/Minify, or Stringify to create a string literal.");
+									throw new Error("Unstringify requires a JSON string literal as input (e.g., \"{\\\"key\\\":\\\"value\\\"}\"). The provided input is already a valid JSON object. You may want to use Prettify or Minify instead.");
 								}
 								const parsedTwice = JSON.parse(parsedOnce);
 								const result = JSON.stringify(parsedTwice, null, 2);
