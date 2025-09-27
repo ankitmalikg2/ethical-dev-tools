@@ -1,0 +1,422 @@
+/* Base styles */
+body {
+  font-family: var(--vscode-font-family);
+  color: var(--vscode-foreground);
+  background-color: var(--vscode-editor-background);
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h1 {
+  color: var(--vscode-foreground);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Form elements */
+textarea,
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+select {
+  width: 100%;
+  background-color: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border);
+  border-radius: 3px;
+  padding: 10px;
+  font-family: var(--vscode-editor-font-family);
+  font-size: var(--vscode-editor-font-size);
+  box-sizing: border-box;
+}
+
+textarea {
+  resize: vertical;
+}
+
+button {
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+/* Utility classes */
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.result {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 3px;
+  min-height: 20px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.success {
+  background-color: var(--vscode-inputValidation-infoBackground);
+  border: 1px solid var(--vscode-inputValidation-infoBorder);
+  color: var(--vscode-inputValidation-infoForeground);
+}
+
+.error {
+  background-color: var(--vscode-inputValidation-errorBackground);
+  border: 1px solid var(--vscode-inputValidation-errorBorder);
+  color: var(--vscode-inputValidation-errorForeground);
+}
+
+.decoded-content {
+  background-color: var(--vscode-textCodeBlock-background);
+  border: 1px solid var(--vscode-input-border);
+  border-radius: 3px;
+  padding: 10px;
+  margin-top: 10px;
+  font-family: var(--vscode-editor-font-family);
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+/* Tool-specific styles */
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.output-text {
+  background-color: var(--vscode-textBlockQuote-background);
+}
+
+/* diffView.html specific styles */
+.diff-view-body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+}
+
+.diff-controls {
+  padding: 10px;
+  border-bottom: 1px solid var(--vscode-panel-border);
+  text-align: center;
+}
+
+.diff-container {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.diff-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.diff-divider {
+  width: 2px;
+  background-color: var(--vscode-panel-border);
+}
+
+.diff-textarea {
+  height: 100%;
+  resize: none;
+  border: none;
+  font-family: var(--vscode-editor-font-family);
+}
+
+/* epochTool.html specific styles */
+.section {
+  margin-bottom: 30px;
+  padding: 20px;
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 5px;
+}
+
+.section h2 {
+  margin-top: 0;
+}
+
+.result.result-bordered {
+  margin-top: 15px;
+  background-color: var(--vscode-textCodeBlock-background);
+  border: 1px solid var(--vscode-panel-border);
+}
+
+.current-time {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: var(--vscode-textCodeBlock-background);
+  border-radius: 5px;
+}
+
+/* jsonTool.html specific styles */
+.json-tool-body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 1em;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.json-container {
+  display: flex;
+  flex-grow: 1;
+  gap: 8px;
+  min-height: 0;
+}
+
+.json-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.json-column h3 {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.json-editor-container {
+  position: relative;
+  flex-grow: 1;
+  display: flex;
+}
+
+.json-textarea {
+  height: 100%;
+  resize: none;
+  padding-right: 40px; /* Space for copy icon */
+}
+
+.json-controls {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5em;
+  padding: 0;
+}
+
+.copy-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  padding: 4px;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.copy-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: var(--vscode-icon-foreground);
+}
+
+.copy-icon:hover {
+  background-color: var(--vscode-toolbar-hoverBackground);
+}
+
+.copy-feedback {
+  position: absolute;
+  top: 10px;
+  right: 40px;
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground);
+  background-color: var(--vscode-input-background);
+  padding: 2px 5px;
+  border-radius: 3px;
+  display: none; /* Hidden by default */
+}
+
+/* Modal Dialog Styles */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: var(--vscode-editor-background);
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid var(--vscode-input-border);
+  border-radius: 5px;
+  width: 80%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.modal-content.success {
+  border-color: var(--vscode-testing-iconPassed);
+}
+
+.modal-content.error {
+  border-color: var(--vscode-errorForeground);
+}
+
+.close-button {
+  color: var(--vscode-foreground);
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.close-button:hover,
+.close-button:focus {
+  color: var(--vscode-descriptionForeground);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* jsonYamlTool.html specific styles */
+.jsonyaml-body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+  margin: 0;
+}
+
+.jsonyaml-h1 {
+  margin: 0 0 10px 0;
+}
+
+.jsonyaml-h2 {
+  margin: 0 0 5px 0;
+  padding-left: 5px;
+}
+
+.jsonyaml-container {
+  flex-grow: 1;
+  display: flex;
+  gap: 10px;
+  min-height: 0;
+}
+
+.jsonyaml-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.jsonyaml-controls {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+
+.jsonyaml-editor-container {
+  position: relative;
+  flex-grow: 1;
+  display: flex;
+}
+
+.jsonyaml-textarea {
+  height: 100%;
+  padding-right: 40px; /* Space for copy icon */
+  resize: none;
+}
+
+.jsonyaml-button {
+  padding: 8px 12px;
+}
+
+.jsonyaml-error-message {
+  color: var(--vscode-errorForeground);
+  margin-top: 10px;
+  height: 20px;
+  padding-left: 5px;
+  text-align: center;
+}
+
+/* jwtTool.html specific styles */
+.jwt-textarea {
+  height: 120px;
+}
+
+.jwt-button {
+  padding: 8px 16px;
+}
+
+.tab-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  border-bottom: 2px solid transparent;
+  font-weight: normal;
+  transition: background 0.2s, border-bottom 0.2s, font-weight 0.2s;
+  flex: 1;
+}
+
+.tab-btn.active {
+  border-bottom: 2.5px solid var(--vscode-button-foreground);
+  font-weight: bold;
+}
+
+.decoded-pre {
+    margin: 5px 0;
+    padding: 10px;
+    background: var(--vscode-textCodeBlock-background);
+    border-radius: 3px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* yamlValidator.html specific styles */
+.yaml-validator-textarea {
+  height: 300px;
+}
+
+.yaml-validator-button {
+  padding: 8px 16px;
+}

@@ -4,72 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ethical Diff</title>
-    <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            font-family: sans-serif;
-            background-color: #1e1e1e;
-            color: #d4d4d4;
-        }
-        .controls {
-            padding: 10px;
-            border-bottom: 1px solid #333;
-            text-align: center;
-        }
-        .button {
-            background-color: #007acc;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .button:hover {
-            background-color: #0099ff;
-        }
-        .container {
-            display: flex;
-            flex: 1;
-        }
-        .pane {
-            width: 50%;
-            height: 100%;
-            padding: 0;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-        .divider {
-            width: 2px;
-            background-color: #666;
-        }
-        textarea {
-            width: 100%;
-            height: 100%;
-            resize: none;
-            border: none;
-            padding: 10px;
-            box-sizing: border-box;
-            background-color: #1e1e1e;
-            color: #d4d4d4;
-            font-family: monospace;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div class="controls">
-        <button class="button" onclick="findDiff()">Find Diff</button>
+<body class="diff-view-body">
+    <div class="diff-controls">
+        <button onclick="findDiff()">Find Diff</button>
     </div>
-    <div class="container">
-        <div class="pane">
-            <textarea id="file1" placeholder="Paste file 1 content here"></textarea>
+    <div class="diff-container">
+        <div class="diff-pane">
+            <textarea id="file1" class="diff-textarea" placeholder="Paste file 1 content here"></textarea>
         </div>
-        <div class="divider"></div>
-        <div class="pane">
-            <textarea id="file2" placeholder="Paste file 2 content here"></textarea>
+        <div class="diff-divider"></div>
+        <div class="diff-pane">
+            <textarea id="file2" class="diff-textarea" placeholder="Paste file 2 content here"></textarea>
         </div>
     </div>
 

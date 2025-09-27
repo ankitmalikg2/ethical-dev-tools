@@ -4,124 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JWT Tool</title>
-    <style>
-        .tab-btn {
-            border-bottom: 2px solid transparent;
-            font-weight: normal;
-            transition: background 0.2s, border-bottom 0.2s, font-weight 0.2s;
-        }
-        .tab-btn.active {
-            background-color: var(--vscode-button-background);
-            color: var(--vscode-button-foreground);
-            border-bottom: 2.5px solid var(--vscode-button-foreground);
-            font-weight: bold;
-        }
-        body {
-            font-family: var(--vscode-font-family);
-            color: var(--vscode-foreground);
-            background-color: var(--vscode-editor-background);
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        h1 {
-            color: var(--vscode-foreground);
-            margin-bottom: 20px;
-        }
-        .input-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        textarea, input {
-            width: 100%;
-            background-color: var(--vscode-input-background);
-            color: var(--vscode-input-foreground);
-            border: 1px solid var(--vscode-input-border);
-            border-radius: 3px;
-            padding: 10px;
-            font-family: var(--vscode-editor-font-family);
-            font-size: var(--vscode-editor-font-size);
-        }
-        textarea {
-            height: 120px;
-            resize: vertical;
-        }
-        button {
-            background-color: var(--vscode-button-background);
-            color: var(--vscode-button-foreground);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 3px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        button:hover {
-            background-color: var(--vscode-button-hoverBackground);
-        }
-        .result {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 3px;
-            min-height: 20px;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            max-width: 100%;
-        }
-        .success {
-            background-color: var(--vscode-inputValidation-infoBackground);
-            border: 1px solid var(--vscode-inputValidation-infoBorder);
-            color: var(--vscode-inputValidation-infoForeground);
-        }
-        .error {
-            background-color: var(--vscode-inputValidation-errorBackground);
-            border: 1px solid var(--vscode-inputValidation-errorBorder);
-            color: var(--vscode-inputValidation-errorForeground);
-        }
-        .decoded-content {
-            background-color: var(--vscode-textCodeBlock-background);
-            border: 1px solid var(--vscode-input-border);
-            border-radius: 3px;
-            padding: 10px;
-            margin-top: 10px;
-            font-family: var(--vscode-editor-font-family);
-            white-space: pre-wrap;
-            overflow-x: auto;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            max-width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <h1>JWT Tool</h1>
-        <div id="tab-bar" style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <button id="tab-decode" class="button tab-btn" style="flex:1;">Decode JWT</button>
-            <button id="tab-create" class="button tab-btn" style="flex:1;">Create JWT</button>
+        <div id="tab-bar" class="tab-bar">
+            <button id="tab-decode" class="tab-btn">Decode JWT</button>
+            <button id="tab-create" class="tab-btn">Create JWT</button>
         </div>
         <div id="decode-section">
             <div class="input-group">
                 <label for="jwtInput">JWT Token:</label>
-                <textarea id="jwtInput" placeholder="Paste your JWT token here..."></textarea>
+                <textarea id="jwtInput" class="jwt-textarea" placeholder="Paste your JWT token here..."></textarea>
             </div>
             <div class="input-group">
                 <label for="secretInput">Secret (optional - for signature verification):</label>
                 <input type="text" id="secretInput" placeholder="Enter secret key for verification...">
             </div>
-            <button onclick="decodeJWT()">Decode JWT</button>
+            <button class="jwt-button" onclick="decodeJWT()">Decode JWT</button>
             <div id="result" class="result"></div>
         </div>
         <div id="create-section" style="display:none;">
             <div class="input-group">
                 <label for="payloadInput">Payload (JSON):</label>
-                <textarea id="payloadInput" placeholder='{"user":"alice","role":"admin"}'></textarea>
+                <textarea id="payloadInput" class="jwt-textarea" placeholder='{"user":"alice","role":"admin"}'></textarea>
             </div>
             <div class="input-group">
                 <label for="createSecretInput">Secret:</label>
@@ -145,7 +52,7 @@
                     <option value="none">none (Unsecured JWT)</option>
                 </select>
             </div>
-            <button onclick="createJWT()">Create JWT</button>
+            <button class="jwt-button" onclick="createJWT()">Create JWT</button>
             <div id="createResult" class="result"></div>
         </div>
     </div>
@@ -224,10 +131,10 @@
                     resultDiv.className = 'result success';
                     let html = '<div style="margin-bottom: 10px;">✓ JWT Decoded Successfully</div>';
                     if (message.header) {
-                        html += '<div style="margin-bottom: 15px;"><strong>HEADER:</strong><pre style="margin: 5px 0; padding: 10px; background: var(--vscode-textCodeBlock-background); border-radius: 3px; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;">' + JSON.stringify(message.header, null, 2) + '</pre></div>';
+                        html += '<div style="margin-bottom: 15px;"><strong>HEADER:</strong><pre class="decoded-pre">' + JSON.stringify(message.header, null, 2) + '</pre></div>';
                     }
                     if (message.payload) {
-                        html += '<div style="margin-bottom: 15px;"><strong>PAYLOAD:</strong><pre style="margin: 5px 0; padding: 10px; background: var(--vscode-textCodeBlock-background); border-radius: 3px; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;">' + JSON.stringify(message.payload, null, 2) + '</pre></div>';
+                        html += '<div style="margin-bottom: 15px;"><strong>PAYLOAD:</strong><pre class="decoded-pre">' + JSON.stringify(message.payload, null, 2) + '</pre></div>';
                     }
                     if (message.verified !== undefined) {
                         html += '<div><strong>SIGNATURE:</strong> ' + (message.verified ? '✓ Valid' : '✗ Invalid') + '</div>';
@@ -244,7 +151,7 @@
                 if (message.success) {
                     resultDiv.className = 'result success';
                     resultDiv.innerHTML = '<div style="margin-bottom: 10px;">✓ JWT Created Successfully</div>' +
-                        '<div><strong>JWT:</strong><pre style="margin: 5px 0; padding: 10px; background: var(--vscode-textCodeBlock-background); border-radius: 3px; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;">' + message.token + '</pre></div>';
+                        '<div><strong>JWT:</strong><pre class="decoded-pre">' + message.token + '</pre></div>';
                 } else {
                     resultDiv.className = 'result error';
                     resultDiv.innerHTML = '<div>✗ Error: ' + message.error + '</div>';
