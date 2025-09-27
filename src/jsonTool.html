@@ -286,7 +286,6 @@
                     case 'jsonResult':
                         if (message.success) {
                             jsonOutput.value = message.result;
-                            showModal('Operation successful.', 'success');
                         } else {
                             jsonOutput.value = '';
                             showModal(`Error: ${message.error}`, 'error');
