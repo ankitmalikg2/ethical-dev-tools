@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 import * as jwt from 'jsonwebtoken';
+import * as regexpTree from 'regexp-tree';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -430,7 +431,187 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	context.subscriptions.push(createDiffCommand, base64ToolCommand, yamlValidatorCommand, jwtToolCommand, epochToolCommand, jsonYamlToolCommand, jsonToolCommand);
+	let regexMatcherPanel: vscode.WebviewPanel | undefined = undefined;
+	let regexMatcherCommand = vscode.commands.registerCommand('ethical-dev-tools.regexMatcher', () => {
+		if (regexMatcherPanel) {
+			regexMatcherPanel.reveal(vscode.ViewColumn.One);
+		} else {
+			regexMatcherPanel = vscode.window.createWebviewPanel(
+				'regexMatcher',
+				'Regex Matcher',
+				vscode.ViewColumn.One,
+				{
+					enableScripts: true,
+					retainContextWhenHidden: true,
+					localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'src')]
+				}
+			);
+
+			regexMatcherPanel.webview.html = getWebviewContent(context, 'regexMatcher.html');
+
+			regexMatcherPanel.onDidDispose(
+				() => {
+					regexMatcherPanel = undefined;
+				},
+				null,
+				context.subscriptions
+			);
+
+			let debounceTimer: NodeJS.Timeout;
+			regexMatcherPanel.webview.onDidReceiveMessage(
+				async message => {
+					switch (message.command) {
+						case 'processRegex':
+							clearTimeout(debounceTimer);
+							debounceTimer = setTimeout(() => {
+								try {
+									const { regex, testString, flavor } = message;
+									let explanation = null;
+
+									if (regex) {
+										try {
+											const ast = regexpTree.parse(`/${regex}/`, { captureLocations: true });
+											explanation = generateExplanationFromAst(ast);
+										} catch (e) {
+											// This is a backup, main error is caught below
+										}
+									}
+
+									if (flavor === 'javascript') {
+										regexpTree.parse(`/${regex}/`); // Main validation
+										const regexExp = new RegExp(regex, 'gd');
+										const matches = [...testString.matchAll(regexExp)];
+										const matchResults = matches.map(match => ({
+											fullMatch: match[0],
+											startIndex: match.index,
+											endIndex: (match.index ?? 0) + match[0].length,
+											groups: match.slice(1),
+											indices: match.indices,
+										}));
+
+										regexMatcherPanel?.webview.postMessage({
+											command: 'regexResult',
+											success: true,
+											matches: matchResults,
+											explanation: explanation,
+											error: null,
+										});
+									} else {
+										// Placeholder for other flavors
+										regexMatcherPanel?.webview.postMessage({
+											command: 'regexResult',
+											success: false,
+											matches: [],
+											explanation: explanation,
+											error: `Flavor '${flavor}' is not yet supported.`,
+										});
+									}
+								} catch (error: any) {
+									const errorExplanation = getExplanationFromError(error, message.regex);
+									regexMatcherPanel?.webview.postMessage({
+										command: 'regexResult',
+										success: false,
+										matches: [],
+										explanation: errorExplanation,
+										error: error.message,
+									});
+								}
+							}, 300); // 300ms debounce
+							return;
+					}
+				},
+				undefined,
+				context.subscriptions
+			);
+		}
+	});
+
+	context.subscriptions.push(createDiffCommand, base64ToolCommand, yamlValidatorCommand, jwtToolCommand, epochToolCommand, jsonYamlToolCommand, jsonToolCommand, regexMatcherCommand);
+}
+
+export function generateExplanationFromAst(ast: any): any[] {
+    const explanations: any[] = [];
+    regexpTree.traverse(ast, {
+        '*'(node: any) {
+            const part = getExplanationForNode(node);
+            if (part) {
+                explanations.push(part);
+            }
+        },
+    });
+    return explanations;
+}
+
+export function getExplanationForNode(node: any): any | null {
+    const { type, loc } = node;
+    const source = node.raw || (node.value || '').toString();
+    const location = { start: loc.start.offset, end: loc.end.offset };
+
+    switch (type) {
+        case 'Char':
+            if (node.kind === 'meta') {
+                return { source, description: `Matches the metacharacter '${source}'`, location };
+            }
+            return { source, description: `Matches the character '${source}' literally`, location };
+        case 'Digit':
+            return { source: '\\d', description: 'Matches any digit (0-9)', location };
+        case 'Word':
+            return { source: '\\w', description: 'Matches any word character (alphanumeric & underscore)', location };
+        case 'Whitespace':
+            return { source: '\\s', description: 'Matches any whitespace character (spaces, tabs, newlines)', location };
+        case 'Quantifier':
+            let description = '';
+            switch (node.kind) {
+                case '*': description = 'Matches the preceding token 0 or more times'; break;
+                case '+': description = 'Matches the preceding token 1 or more times'; break;
+                case '?': description = 'Matches the preceding token 0 or 1 time'; break;
+                case 'Range':
+                    if (node.from === node.to) {
+                        description = `Matches the preceding token exactly ${node.from} times`;
+                    } else if (node.to === Infinity) {
+                        description = `Matches the preceding token at least ${node.from} times`;
+                    } else {
+                        description = `Matches the preceding token between ${node.from} and ${node.to} times`;
+                    }
+                    break;
+            }
+            return { source: node.raw, description: `${description} (${node.greedy ? 'greedy' : 'non-greedy'})`, location };
+        case 'Anchor':
+            switch(node.kind) {
+                case '^': return { source: '^', description: 'Asserts position at the start of the string', location };
+                case '$': return { source: '$', description: 'Asserts position at the end of the string', location };
+                case '\\b': return { source: '\\b', description: 'Asserts a word boundary', location };
+            }
+            break;
+        case 'Group':
+            if (node.capturing) {
+                return { source: '(...)' , description: `A capturing group. Matches and captures the enclosed expression.`, location };
+            }
+            return { source: '(?:...)', description: 'A non-capturing group. Groups multiple tokens together without creating a capture group.', location };
+        case 'Disjunction':
+             return { source: '|', description: 'Acts like a boolean OR. Matches the expression before or after it.', location: { start: node.left.loc.end.offset, end: node.right.loc.start.offset } };
+        case 'CharacterClass':
+            return { source: '[...]', description: `A character set. Matches any single character within the brackets. ${node.negative ? '(Negative)' : ''}`, location };
+
+    }
+    return null;
+}
+
+export function getExplanationFromError(error: any, regex: string): any[] {
+    if (error.name === 'SyntaxError' && error.loc) {
+        return [{
+            source: regex.substring(error.loc.start.offset - 1, error.loc.end.offset -1),
+            description: `Syntax Error: ${error.message}`,
+            location: { start: error.loc.start.offset - 1, end: error.loc.end.offset -1 },
+            isError: true,
+        }];
+    }
+    return [{
+        source: regex,
+        description: `Error: ${error.message}`,
+        location: { start: 0, end: regex.length },
+        isError: true,
+    }];
 }
 
 export function deactivate() {}
@@ -518,7 +699,15 @@ class EthicalDevToolProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 			};
 			jsonToolItem.iconPath = new vscode.ThemeIcon('json');
 
-			return Promise.resolve([diffToolItem, base64ToolItem, yamlValidatorItem, jwtToolItem, epochToolItem, jsonYamlToolItem, jsonToolItem]);
+			const regexMatcherItem = new vscode.TreeItem('Regex Matcher', vscode.TreeItemCollapsibleState.None);
+			regexMatcherItem.command = {
+				command: 'ethical-dev-tools.regexMatcher',
+				title: 'Regex Matcher',
+				tooltip: 'Open the Regex Matcher'
+			};
+			regexMatcherItem.iconPath = new vscode.ThemeIcon('regex');
+
+			return Promise.resolve([diffToolItem, base64ToolItem, yamlValidatorItem, jwtToolItem, epochToolItem, jsonYamlToolItem, jsonToolItem, regexMatcherItem]);
 		}
 	}
 }

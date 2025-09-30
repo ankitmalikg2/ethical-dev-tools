@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regex Matcher</title>
+    <link rel="stylesheet" href="common-styles.css">
+</head>
+<body>
+    <h1>Regex Matcher</h1>
+
+    <div class="container">
+        <div class="control-group">
+            <label for="flavor-select">Regex Flavor:</label>
+            <select id="flavor-select">
+                <option value="javascript">ECMAScript (JavaScript)</option>
+                <option value="python" disabled>Python (coming soon)</option>
+                <option value="golang" disabled>Golang (coming soon)</option>
+                <option value="java" disabled>Java (coming soon)</option>
+                <option value="csharp" disabled>C# (coming soon)</option>
+                <option value="pcre2" disabled>PCRE2 (coming soon)</option>
+            </select>
+            <small>Support for additional flavors is under development.</small>
+        </div>
+
+        <div class="control-group">
+            <label for="regex-input">Regular Expression:</label>
+            <div class="input-container">
+                <textarea id="regex-input" class="control" rows="3" spellcheck="false"></textarea>
+                <div id="regex-highlight-overlay" class="highlight-overlay">
+                    <pre><code id="regex-highlight-content"></code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="test-string-input">Test String:</label>
+            <div class="test-string-container">
+                <textarea id="test-string-input" class="control" rows="10" spellcheck="false"></textarea>
+                <div id="highlight-overlay" class="highlight-overlay">
+                    <pre><code id="highlight-content"></code></pre>
+                </div>
+            </div>
+        </div>
+
+        <h2>Explanation</h2>
+        <div id="explanation-panel" class="panel"></div>
+
+        <h2>Match Information</h2>
+        <div id="match-info-panel" class="panel"></div>
+    </div>
+
+    <script>
+        const vscode = acquireVsCodeApi();
+
+        const regexInput = document.getElementById('regex-input');
+        const testStringInput = document.getElementById('test-string-input');
+        const flavorSelect = document.getElementById('flavor-select');
+        const explanationPanel = document.getElementById('explanation-panel');
+        const matchInfoPanel = document.getElementById('match-info-panel');
+
+        function processRegex() {
+            vscode.postMessage({
+                command: 'processRegex',
+                regex: regexInput.value,
+                testString: testStringInput.value,
+                flavor: flavorSelect.value
+            });
+        }
+
+        regexInput.addEventListener('input', processRegex);
+        testStringInput.addEventListener('input', processRegex);
+        flavorSelect.addEventListener('change', processRegex);
+
+        const highlightContent = document.getElementById('highlight-content');
+
+        function syncScroll() {
+            highlightContent.parentElement.scrollTop = testStringInput.scrollTop;
+            highlightContent.parentElement.scrollLeft = testStringInput.scrollLeft;
+        }
+
+        testStringInput.addEventListener('scroll', syncScroll);
+
+        function renderHighlights(testString, matches) {
+            if (!matches || matches.length === 0) {
+                highlightContent.textContent = testString;
+                return;
+            }
+
+            let highlightedHtml = '';
+            let lastIndex = 0;
+
+            // Flatten and sort all match and group ranges
+            const ranges = [];
+            matches.forEach(match => {
+                // Add the full match range
+                ranges.push({ start: match.startIndex, end: match.endIndex, className: 'match-highlight' });
+                // Add group ranges, skipping the full match (group 0)
+                if (match.indices && match.indices.length > 1) {
+                    for (let i = 1; i < match.indices.length; i++) {
+                        const groupRange = match.indices[i];
+                        if (groupRange) { // Group might not have matched
+                            const groupClass = `group-highlight-${i % 10 + 1}`;
+                            ranges.push({ start: groupRange[0], end: groupRange[1], className: groupClass });
+                        }
+                    }
+                }
+            });
+
+            // Sort ranges by start index, then by end index descending to handle nesting
+            ranges.sort((a, b) => a.start - b.start || b.end - a.end);
+
+            for (const range of ranges) {
+                // Add text before the current range
+                highlightedHtml += escapeHtml(testString.substring(lastIndex, range.start));
+                // Add the highlighted span
+                highlightedHtml += `<span class="${range.className}">${escapeHtml(testString.substring(range.start, range.end))}</span>`;
+                lastIndex = Math.max(lastIndex, range.end);
+            }
+
+            // Add any remaining text
+            highlightedHtml += escapeHtml(testString.substring(lastIndex));
+
+            highlightContent.innerHTML = highlightedHtml;
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>"']/g, function(match) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[match];
+            });
+        }
+
+
+        function renderExplanation(explanation) {
+            if (!explanation || explanation.length === 0) {
+                explanationPanel.innerHTML = '<em>Type a regular expression to see an explanation.</em>';
+                return;
+            }
+
+            let html = '<ul class="explanation-list">';
+            for (const part of explanation) {
+                html += `<li
+                            data-start="${part.location.start - 1}"
+                            data-end="${part.location.end - 1}"
+                            class="${part.isError ? 'error-item' : ''}"
+                         >
+                            <code class="explanation-source">${escapeHtml(part.source)}</code>
+                            <span class="explanation-description">${escapeHtml(part.description)}</span>
+                         </li>`;
+            }
+            html += '</ul>';
+            explanationPanel.innerHTML = html;
+        }
+
+
+        function renderMatchInfo(matches) {
+            if (!matches || matches.length === 0) {
+                matchInfoPanel.innerHTML = '<em>No matches found.</em>';
+                return;
+            }
+
+            let html = `
+                <table class="match-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Full Match</th>
+                            <th>Range</th>
+                            <th>Groups</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            matches.forEach((match, index) => {
+                const groupsHtml = match.groups.map((g, i) => `
+                    <div class="group-item">
+                        <span class="group-index">${i + 1}:</span>
+                        <span class="group-content">${escapeHtml(g)}</span>
+                    </div>
+                `).join('');
+
+                html += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${escapeHtml(match.fullMatch)}</td>
+                        <td>${match.startIndex} - ${match.endIndex}</td>
+                        <td>${groupsHtml || '<em>N/A</em>'}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            matchInfoPanel.innerHTML = html;
+        }
+
+
+        const regexHighlightContent = document.getElementById('regex-highlight-content');
+
+        // Sync regex input with its highlight overlay
+        regexInput.addEventListener('input', () => {
+            regexHighlightContent.textContent = regexInput.value;
+            syncRegexScroll();
+        });
+
+        function syncRegexScroll() {
+            regexHighlightContent.parentElement.scrollTop = regexInput.scrollTop;
+            regexHighlightContent.parentElement.scrollLeft = regexInput.scrollLeft;
+        }
+        regexInput.addEventListener('scroll', syncRegexScroll);
+
+        // Add event listeners for hover-to-highlight
+        explanationPanel.addEventListener('mouseover', (e) => {
+            const target = e.target.closest('li');
+            if (target) {
+                const start = parseInt(target.dataset.start, 10);
+                const end = parseInt(target.dataset.end, 10);
+                if (!isNaN(start) && !isNaN(end)) {
+                    highlightRegexToken(start, end);
+                }
+            }
+        });
+
+        explanationPanel.addEventListener('mouseout', () => {
+            regexHighlightContent.textContent = regexInput.value;
+        });
+
+        function highlightRegexToken(start, end) {
+            const text = regexInput.value;
+            if (start < 0 || end > text.length || start > end) {
+                regexHighlightContent.textContent = text;
+                return;
+            }
+            const before = escapeHtml(text.substring(0, start));
+            const highlighted = escapeHtml(text.substring(start, end));
+            const after = escapeHtml(text.substring(end));
+            regexHighlightContent.innerHTML = `${before}<span class="regex-token-highlight">${highlighted}</span>${after}`;
+        }
+
+        window.addEventListener('message', event => {
+            const message = event.data;
+            switch (message.command) {
+                case 'regexResult':
+                    const testString = testStringInput.value;
+                    regexHighlightContent.textContent = regexInput.value; // Update regex view on result
+
+                    renderExplanation(message.explanation);
+                    renderMatchInfo(message.matches);
+
+                    if (message.success) {
+                        renderHighlights(testString, message.matches);
+                    } else {
+                        highlightContent.textContent = testString; // Show plain text on error
+                    }
+                    syncScroll();
+                    syncRegexScroll();
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>

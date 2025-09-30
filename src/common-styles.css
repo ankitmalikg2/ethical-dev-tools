@@ -378,3 +378,199 @@ html, body {
     height: 0;
     display: none;
 }
+
+/* Styles for Regex Matcher */
+.test-string-container {
+    position: relative;
+}
+
+.test-string-container textarea,
+.test-string-container .highlight-overlay {
+    margin: 0;
+    padding: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: var(--vscode-editor-font-family);
+    font-size: var(--vscode-editor-font-size);
+    line-height: 1.5;
+    background: transparent;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    border: 1px solid var(--vscode-input-border);
+    border-radius: 3px;
+}
+
+.test-string-container textarea {
+    position: relative;
+    z-index: 2;
+    color: transparent;
+    caret-color: var(--vscode-editor-foreground);
+    resize: vertical;
+    height: 200px; /* Default height */
+}
+
+.test-string-container .highlight-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+    color: var(--vscode-editor-foreground);
+    height: 100%;
+}
+
+.highlight-overlay pre,
+.highlight-overlay code {
+    padding: 0;
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+.match-highlight {
+    background-color: rgba(255, 255, 0, 0.3);
+    border-radius: 2px;
+}
+
+.group-highlight-1 { background-color: rgba(173, 216, 230, 0.4); } /* Light Blue */
+.group-highlight-2 { background-color: rgba(144, 238, 144, 0.4); } /* Light Green */
+.group-highlight-3 { background-color: rgba(255, 182, 193, 0.4); } /* Light Pink */
+.group-highlight-4 { background-color: rgba(255, 218, 185, 0.4); } /* Peach */
+.group-highlight-5 { background-color: rgba(221, 160, 221, 0.4); } /* Plum */
+.group-highlight-6 { background-color: rgba(240, 230, 140, 0.4); } /* Khaki */
+.group-highlight-7 { background-color: rgba(175, 238, 238, 0.4); } /* Pale Turquoise */
+.group-highlight-8 { background-color: rgba(255, 160, 122, 0.4); } /* Light Salmon */
+.group-highlight-9 { background-color: rgba(152, 251, 152, 0.4); } /* Pale Green */
+.group-highlight-10 { background-color: rgba(135, 206, 250, 0.4); } /* Light Sky Blue */
+
+/* Explanation Panel Styles */
+.explanation-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: var(--vscode-font-size);
+}
+
+.explanation-list li {
+    padding: 8px;
+    border-bottom: 1px solid var(--vscode-panel-border);
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.explanation-list li:last-child {
+    border-bottom: none;
+}
+
+.explanation-list li.error-item {
+    background-color: rgba(255, 0, 0, 0.1);
+}
+
+.explanation-list li:hover {
+    background-color: var(--vscode-list-hoverBackground);
+}
+
+.explanation-source {
+    font-family: var(--vscode-editor-font-family);
+    background-color: var(--vscode-textCodeBlock-background);
+    padding: 2px 6px;
+    border-radius: 3px;
+    min-width: 50px;
+    text-align: center;
+}
+
+.explanation-description {
+    flex-grow: 1;
+}
+
+/* Match Info Table Styles */
+.match-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.match-table th, .match-table td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.match-table th {
+    background-color: var(--vscode-sideBar-background);
+    font-weight: bold;
+}
+
+.match-table tbody tr:hover {
+    background-color: var(--vscode-list-hoverBackground);
+}
+
+.group-item {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.group-index {
+    font-weight: bold;
+    color: var(--vscode-descriptionForeground);
+}
+
+.group-content {
+    font-family: var(--vscode-editor-font-family);
+    background-color: var(--vscode-textCodeBlock-background);
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+.input-container {
+    position: relative;
+}
+
+.input-container textarea,
+.input-container .highlight-overlay {
+    margin: 0;
+    padding: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: var(--vscode-editor-font-family);
+    font-size: var(--vscode-editor-font-size);
+    line-height: 1.5;
+    background: transparent;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    border: 1px solid var(--vscode-input-border);
+    border-radius: 3px;
+}
+
+.input-container textarea {
+    position: relative;
+    z-index: 2;
+    color: transparent;
+    caret-color: var(--vscode-editor-foreground);
+    resize: vertical;
+}
+
+.input-container .highlight-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+    color: var(--vscode-editor-foreground);
+    height: 100%;
+}
+
+#regex-input {
+    height: 100px;
+}
+
+.regex-token-highlight {
+    background-color: var(--vscode-editor-selectionBackground);
+    border-radius: 2px;
+}

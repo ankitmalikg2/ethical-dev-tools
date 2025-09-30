@@ -121,6 +121,10 @@
       {
         "command": "ethical-dev-tools.jsonTool",
         "title": "Ethical Dev Tools: JSON Tools"
+      },
+      {
+        "command": "ethical-dev-tools.regexMatcher",
+        "title": "Ethical Dev Tools: Regex Matcher"
       }
     ],
     "viewsContainers": {
