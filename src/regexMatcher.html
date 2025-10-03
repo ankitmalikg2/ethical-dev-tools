@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regex Matcher</title>
+    <link rel="stylesheet" href="common-styles.css">
+    <style>
+        .regex-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 10px;
+        }
+        .regex-input-section {
+            margin-bottom: 15px;
+        }
+        .regex-flags {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+            align-items: center;
+        }
+        .regex-flag {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .regex-main {
+            display: flex;
+            flex: 1;
+            gap: 15px;
+            min-height: 0;
+        }
+        .regex-left {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+        }
+        .regex-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .regex-test-area {
+            position: relative;
+            flex: 1;
+            margin-bottom: 15px;
+        }
+        .regex-test-input {
+            width: 100%;
+            height: 100%;
+            resize: none;
+            font-family: var(--vscode-editor-font-family);
+            font-size: var(--vscode-editor-font-size);
+            line-height: 1.4;
+            background-color: var(--vscode-input-background);
+            color: var(--vscode-input-foreground);
+            border: 1px solid var(--vscode-input-border);
+            border-radius: 3px;
+            padding: 10px;
+            padding-right: 40px;
+        }
+        .regex-highlight-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            font-family: var(--vscode-editor-font-family);
+            font-size: var(--vscode-editor-font-size);
+            line-height: 1.4;
+            padding: 10px;
+            padding-right: 40px;
+            border: 1px solid transparent;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow: hidden;
+            background: transparent;
+            color: transparent;
+        }
+        .regex-test-copy-icon {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            padding: 4px;
+            border-radius: 4px;
+            background-color: var(--vscode-input-background);
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+        .regex-test-copy-icon:hover {
+            opacity: 1;
+            background-color: var(--vscode-toolbar-hoverBackground);
+        }
+        .regex-test-copy-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--vscode-icon-foreground);
+        }
+        .regex-match {
+            background-color: rgba(255, 255, 0, 0.3);
+            border-radius: 2px;
+        }
+        .regex-group-0 { background-color: rgba(255, 0, 0, 0.3); }
+        .regex-group-1 { background-color: rgba(0, 255, 0, 0.3); }
+        .regex-group-2 { background-color: rgba(0, 0, 255, 0.3); }
+        .regex-group-3 { background-color: rgba(255, 0, 255, 0.3); }
+        .regex-group-4 { background-color: rgba(255, 165, 0, 0.3); }
+        .regex-matches {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+            margin: 0;
+        }
+        .regex-match-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid var(--vscode-panel-border);
+            border-radius: 5px;
+            background-color: var(--vscode-editor-background);
+        }
+        .regex-match-item > div {
+            margin-bottom: 8px;
+        }
+        .regex-match-item > div:last-child {
+            margin-bottom: 0;
+        }
+        .regex-match-item:first-child {
+            margin-top: 0;
+        }
+        .regex-match-item:last-child {
+            margin-bottom: 0;
+        }
+        .regex-match-text {
+            font-family: monospace;
+            background-color: var(--vscode-textCodeBlock-background);
+            padding: 10px 10px;
+            border-radius: 3px;
+            margin: 0;
+            overflow-x: auto;
+            word-wrap: break-word;
+            position: relative;
+        }
+        .regex-copy-icon {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            padding: 2px;
+            border-radius: 3px;
+            background-color: var(--vscode-input-background);
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .regex-copy-icon:hover {
+            opacity: 1;
+            background-color: var(--vscode-toolbar-hoverBackground);
+        }
+        .regex-copy-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--vscode-icon-foreground);
+        }
+        .regex-error {
+            color: var(--vscode-errorForeground);
+            background-color: var(--vscode-inputValidation-errorBackground);
+            border: 1px solid var(--vscode-inputValidation-errorBorder);
+            padding: 10px;
+            border-radius: 3px;
+            margin-top: 10px;
+        }
+        .regex-info-icon {
+            cursor: help;
+            margin-left: 10px;
+            opacity: 0.7;
+        }
+        .regex-info-icon:hover {
+            opacity: 1;
+        }
+        .regex-info-icon svg {
+            fill: var(--vscode-icon-foreground);
+        }
+        .copy-feedback {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            padding: 8px 12px;
+            border-radius: 4px;
+            z-index: 1000;
+            font-size: 12px;
+        }
+        .tooltip {
+            position: fixed;
+            background: var(--vscode-input-background);
+            color: var(--vscode-input-foreground);
+            border: 1px solid var(--vscode-input-border);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1000;
+            white-space: pre-line;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            pointer-events: none;
+            max-width: 250px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="regex-container">
+        <h1 class="edt-title">Regex Matcher</h1>
+        
+        <div class="regex-input-section">
+            <label class="edt-label" for="regexPattern">Regular Expression:</label>
+            <input type="text" id="regexPattern" class="edt-input" placeholder="Enter your regex pattern..." value="(\w+)@(\w+\.\w+)">
+            <div class="regex-flags">
+                <span>Flags:</span>
+                <div class="regex-info-icon" id="regexInfoIcon">
+                    <svg viewBox="0 0 16 16" width="16" height="16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                    </svg>
+                </div>
+                <label class="regex-flag">
+                    <input type="checkbox" id="flagGlobal" checked> g (global)
+                </label>
+                <label class="regex-flag">
+                    <input type="checkbox" id="flagIgnoreCase"> i (ignore case)
+                </label>
+                <label class="regex-flag">
+                    <input type="checkbox" id="flagMultiline"> m (multiline)
+                </label>
+            </div>
+        </div>
+
+        <div class="regex-main">
+            <div class="regex-left">
+                <label class="edt-label" for="testString">Test String:</label>
+                <div class="regex-test-area">
+                    <textarea id="testString" class="regex-test-input" placeholder="Enter text to test against your regex...">Contact us at support@example.com or sales@company.org for assistance.</textarea>
+                    <div id="highlightOverlay" class="regex-highlight-overlay"></div>
+                    <div class="regex-test-copy-icon" onclick="copyTestString()" title="Copy test string">
+                        <svg viewBox="0 0 16 16">
+                            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="regex-right">
+                <h3 class="edt-subtitle">Matches</h3>
+                <div id="matchResults" class="regex-matches">
+                    <div class="edt-result">Enter a regex pattern to see matches...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const vscode = acquireVsCodeApi();
+        const regexPattern = document.getElementById('regexPattern');
+        const testString = document.getElementById('testString');
+        const flagGlobal = document.getElementById('flagGlobal');
+        const flagIgnoreCase = document.getElementById('flagIgnoreCase');
+        const flagMultiline = document.getElementById('flagMultiline');
+        const highlightOverlay = document.getElementById('highlightOverlay');
+        const matchResults = document.getElementById('matchResults');
+
+        let debounceTimer;
+
+        function debounce(func, wait) {
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(debounceTimer);
+                    func(...args);
+                };
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(later, wait);
+            };
+        }
+
+        function getFlags() {
+            let flags = '';
+            if (flagGlobal.checked) flags += 'g';
+            if (flagIgnoreCase.checked) flags += 'i';
+            if (flagMultiline.checked) flags += 'm';
+            return flags;
+        }
+
+        function testRegex() {
+            const pattern = regexPattern.value.trim();
+            const text = testString.value;
+            const flags = getFlags();
+
+            if (!pattern) {
+                matchResults.innerHTML = '<div class="edt-result">Enter a regex pattern to see matches...</div>';
+                highlightOverlay.innerHTML = '';
+                return;
+            }
+
+            try {
+                const regex = new RegExp(pattern, flags);
+                const matches = [];
+                let match;
+                const globalRegex = new RegExp(pattern, flags);
+                
+                while ((match = globalRegex.exec(text)) !== null) {
+                    matches.push({
+                        fullMatch: match[0],
+                        index: match.index,
+                        groups: match.slice(1),
+                        endIndex: match.index + match[0].length
+                    });
+                    if (!flags.includes('g')) break;
+                }
+
+                displayMatches(matches);
+                highlightMatches(text, matches);
+            } catch (error) {
+                matchResults.innerHTML = `<div class="regex-error">Error: ${error.message}</div>`;
+                highlightOverlay.innerHTML = '';
+            }
+        }
+
+        function displayMatches(matches) {
+            if (matches.length === 0) {
+                matchResults.innerHTML = '<div class="edt-result">No matches found.</div>';
+                return;
+            }
+
+            let html = `<div class="edt-result edt-result--success">${matches.length} match${matches.length > 1 ? 'es' : ''} found</div>`;
+            
+            matches.forEach((match, index) => {
+                html += `
+                    <div class="regex-match-item">
+                        <strong>Match ${index + 1}:</strong>
+                        <div class="regex-match-text">
+                            ${escapeHtml(match.fullMatch)}
+                            <div class="regex-copy-icon" onclick="copyToClipboard('${escapeHtml(match.fullMatch).replace(/'/g, "\\'")}')"
+                                 title="Copy match">
+                                <svg viewBox="0 0 16 16">
+                                    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                                    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div><strong>Position:</strong> ${match.index}-${match.endIndex}</div>
+                        ${match.groups.length > 0 ? `
+                            <div><strong>Groups:</strong></div>
+                            ${match.groups.map((group, i) => `
+                                <div style="margin-left: 10px;">Group ${i + 1}: <code>${escapeHtml(group || '')}</code></div>
+                            `).join('')}
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            matchResults.innerHTML = html;
+        }
+
+        function highlightMatches(text, matches) {
+            if (matches.length === 0) {
+                highlightOverlay.innerHTML = escapeHtml(text);
+                return;
+            }
+
+            let highlightedText = '';
+            let lastIndex = 0;
+
+            matches.forEach(match => {
+                // Add text before match
+                highlightedText += escapeHtml(text.substring(lastIndex, match.index));
+                
+                // Add highlighted match
+                highlightedText += `<span class="regex-match">${escapeHtml(match.fullMatch)}</span>`;
+                
+                lastIndex = match.endIndex;
+            });
+
+            // Add remaining text
+            highlightedText += escapeHtml(text.substring(lastIndex));
+            
+            highlightOverlay.innerHTML = highlightedText;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function syncScroll() {
+            highlightOverlay.scrollTop = testString.scrollTop;
+            highlightOverlay.scrollLeft = testString.scrollLeft;
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showCopyFeedback();
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        function copyTestString() {
+            const text = testString.value;
+            copyToClipboard(text);
+        }
+
+        function showCopyFeedback() {
+            const feedback = document.createElement('div');
+            feedback.textContent = 'Copied!';
+            feedback.className = 'copy-feedback';
+            document.body.appendChild(feedback);
+            setTimeout(() => {
+                document.body.removeChild(feedback);
+            }, 2000);
+        }
+
+        const debouncedTestRegex = debounce(testRegex, 300);
+
+        // Event listeners
+        regexPattern.addEventListener('input', debouncedTestRegex);
+        testString.addEventListener('input', debouncedTestRegex);
+        testString.addEventListener('scroll', syncScroll);
+        flagGlobal.addEventListener('change', testRegex);
+        flagIgnoreCase.addEventListener('change', testRegex);
+        flagMultiline.addEventListener('change', testRegex);
+
+        // Initial test
+        testRegex();
+
+        // Tooltip functionality
+        const infoIcon = document.getElementById('regexInfoIcon');
+        let tooltip = null;
+
+        infoIcon.addEventListener('mouseenter', () => {
+            tooltip = document.createElement('div');
+            tooltip.textContent = 'g: Find all matches (not just first)\ni: Case-insensitive matching\nm: ^ and $ match starts/ends for each line not whole text';
+            tooltip.className = 'tooltip';
+            
+            document.body.appendChild(tooltip);
+            
+            const rect = infoIcon.getBoundingClientRect();
+            const tooltipRect = tooltip.getBoundingClientRect();
+            
+            // Calculate position, ensuring tooltip stays within viewport
+            let left = rect.left - tooltipRect.width / 2 + rect.width / 2;
+            let top = rect.bottom + 5;
+            
+            // Adjust if tooltip would go off left edge
+            if (left < 10) {
+                left = 10;
+            }
+            // Adjust if tooltip would go off right edge
+            if (left + tooltipRect.width > window.innerWidth - 10) {
+                left = window.innerWidth - tooltipRect.width - 10;
+            }
+            // Adjust if tooltip would go off bottom edge
+            if (top + tooltipRect.height > window.innerHeight - 10) {
+                top = rect.top - tooltipRect.height - 5;
+            }
+            
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+        });
+
+        infoIcon.addEventListener('mouseleave', () => {
+            if (tooltip) {
+                document.body.removeChild(tooltip);
+                tooltip = null;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -430,7 +430,70 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	context.subscriptions.push(createDiffCommand, base64ToolCommand, yamlValidatorCommand, jwtToolCommand, epochToolCommand, jsonYamlToolCommand, jsonToolCommand);
+	let regexPanel: vscode.WebviewPanel | undefined = undefined;
+	let regexMatcherCommand = vscode.commands.registerCommand('ethical-dev-tools.regexMatcher', () => {
+		if (regexPanel) {
+			regexPanel.reveal(vscode.ViewColumn.One);
+		} else {
+			regexPanel = vscode.window.createWebviewPanel(
+				'regexMatcher',
+				'Regex Matcher',
+				vscode.ViewColumn.One,
+				{
+					enableScripts: true,
+					retainContextWhenHidden: true,
+					localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'src')]
+				}
+			);
+
+			regexPanel.webview.html = getWebviewContent(context, 'regexMatcher.html');
+
+			regexPanel.onDidDispose(
+				() => {
+					regexPanel = undefined;
+				},
+				null,
+				context.subscriptions
+			);
+
+			regexPanel.webview.onDidReceiveMessage(
+				async message => {
+					switch (message.command) {
+						case 'testRegex':
+							try {
+								const regex = new RegExp(message.pattern, message.flags);
+								const matches = [];
+								let match;
+								while ((match = regex.exec(message.testString)) !== null) {
+									matches.push({
+										fullMatch: match[0],
+										index: match.index,
+										groups: match.slice(1)
+									});
+									if (!regex.global) break;
+								}
+								regexPanel?.webview.postMessage({
+									command: 'regexResult',
+									success: true,
+									matches: matches
+								});
+							} catch (error: any) {
+								regexPanel?.webview.postMessage({
+									command: 'regexResult',
+									success: false,
+									error: error.message
+								});
+							}
+							return;
+					}
+				},
+				undefined,
+				context.subscriptions
+			);
+		}
+	});
+
+	context.subscriptions.push(createDiffCommand, base64ToolCommand, yamlValidatorCommand, jwtToolCommand, epochToolCommand, jsonYamlToolCommand, jsonToolCommand, regexMatcherCommand);
 }
 
 export function deactivate() {}
@@ -518,7 +581,15 @@ class EthicalDevToolProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 			};
 			jsonToolItem.iconPath = new vscode.ThemeIcon('json');
 
-			return Promise.resolve([diffToolItem, base64ToolItem, yamlValidatorItem, jwtToolItem, epochToolItem, jsonYamlToolItem, jsonToolItem]);
+			const regexMatcherItem = new vscode.TreeItem('Regex Matcher', vscode.TreeItemCollapsibleState.None);
+			regexMatcherItem.command = {
+				command: 'ethical-dev-tools.regexMatcher',
+				title: 'Regex Matcher',
+				tooltip: 'Test and analyze regular expressions'
+			};
+			regexMatcherItem.iconPath = new vscode.ThemeIcon('regex');
+
+			return Promise.resolve([diffToolItem, base64ToolItem, yamlValidatorItem, jwtToolItem, epochToolItem, jsonYamlToolItem, jsonToolItem, regexMatcherItem]);
 		}
 	}
 }
