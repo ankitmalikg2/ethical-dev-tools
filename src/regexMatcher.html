@@ -15,6 +15,9 @@
         .regex-input-section {
             margin-bottom: 15px;
         }
+        .regex-engine-section {
+            margin-bottom: 10px;
+        }
         .regex-flags {
             display: flex;
             gap: 10px;
@@ -213,6 +216,11 @@
             pointer-events: none;
             max-width: 250px;
         }
+        .regex-engine-info {
+            font-size: 11px;
+            color: var(--vscode-descriptionForeground);
+            margin-top: 5px;
+        }
 
     </style>
 </head>
@@ -221,6 +229,18 @@
         <h1 class="edt-title">Regex Matcher</h1>
         
         <div class="regex-input-section">
+            <div class="regex-engine-section">
+                <label class="edt-label" for="regexEngine">Regex Engine:</label>
+                <select id="regexEngine" class="edt-input">
+                    <option value="ecma">ECMAScript (JavaScript)</option>
+                    <option value="pcre">PCRE (Perl Compatible)</option>
+                    <option value="python">Python</option>
+                    <option value="golang">Go (RE2)</option>
+                    <option value="java">Java</option>
+                    <option value="rust">Rust</option>
+                </select>
+                <div id="engineInfo" class="regex-engine-info">Supports: Backreferences, Lookaheads, Lookbehinds (ES2018+)</div>
+            </div>
             <label class="edt-label" for="regexPattern">Regular Expression:</label>
             <input type="text" id="regexPattern" class="edt-input" placeholder="Enter your regex pattern..." value="(\w+)@(\w+\.\w+)">
             <div class="regex-flags">
@@ -269,6 +289,8 @@
 
     <script>
         const vscode = acquireVsCodeApi();
+        const regexEngine = document.getElementById('regexEngine');
+        const engineInfo = document.getElementById('engineInfo');
         const regexPattern = document.getElementById('regexPattern');
         const testString = document.getElementById('testString');
         const flagGlobal = document.getElementById('flagGlobal');
@@ -276,6 +298,22 @@
         const flagMultiline = document.getElementById('flagMultiline');
         const highlightOverlay = document.getElementById('highlightOverlay');
         const matchResults = document.getElementById('matchResults');
+
+        const engineFeatures = {
+            'ecma': 'Native JavaScript regex engine - Full ECMAScript support',
+            'pcre': 'Emulated PCRE - Converts (?P<name>...) syntax to ECMAScript',
+            'python': 'Emulated Python - Converts (?P<name>...) syntax to ECMAScript', 
+            'golang': 'Emulated Go RE2 - Blocks backreferences, converts named groups',
+            'java': 'Emulated Java - Uses ECMAScript engine with Java-compatible syntax',
+            'rust': 'Emulated Rust - Uses ECMAScript engine with Rust-compatible syntax'
+        };
+
+        function updateEngineInfo() {
+            const engine = regexEngine.value;
+            engineInfo.textContent = engineFeatures[engine] || 'Engine information not available';
+        }
+
+
 
         let debounceTimer;
 
@@ -302,6 +340,7 @@
             const pattern = regexPattern.value.trim();
             const text = testString.value;
             const flags = getFlags();
+            const engine = regexEngine.value;
 
             if (!pattern) {
                 matchResults.innerHTML = '<div class="edt-result">Enter a regex pattern to see matches...</div>';
@@ -309,6 +348,14 @@
                 return;
             }
 
+            if (engine === 'ecma') {
+                testECMARegex(pattern, text, flags);
+            } else {
+                testExternalRegex(engine, pattern, text, flags);
+            }
+        }
+
+        function testECMARegex(pattern, text, flags) {
             try {
                 const regex = new RegExp(pattern, flags);
                 const matches = [];
@@ -325,21 +372,33 @@
                     if (!flags.includes('g')) break;
                 }
 
-                displayMatches(matches);
+                displayMatches(matches, 'ECMAScript');
                 highlightMatches(text, matches);
             } catch (error) {
-                matchResults.innerHTML = `<div class="regex-error">Error: ${error.message}</div>`;
+                matchResults.innerHTML = `<div class="regex-error">ECMAScript Error: ${error.message}</div>`;
                 highlightOverlay.innerHTML = '';
             }
         }
 
-        function displayMatches(matches) {
+        function testExternalRegex(engine, pattern, text, flags) {
+            matchResults.innerHTML = '<div class="edt-result">Testing with ' + engine.toUpperCase() + ' engine...</div>';
+            
+            vscode.postMessage({
+                command: 'testRegex',
+                engine: engine,
+                pattern: pattern,
+                text: text,
+                flags: flags
+            });
+        }
+
+        function displayMatches(matches, engineName = '') {
             if (matches.length === 0) {
-                matchResults.innerHTML = '<div class="edt-result">No matches found.</div>';
+                matchResults.innerHTML = `<div class="edt-result">No matches found${engineName ? ' (' + engineName + ')' : ''}.</div>`;
                 return;
             }
 
-            let html = `<div class="edt-result edt-result--success">${matches.length} match${matches.length > 1 ? 'es' : ''} found</div>`;
+            let html = `<div class="edt-result edt-result--success">${matches.length} match${matches.length > 1 ? 'es' : ''} found${engineName ? ' (' + engineName + ')' : ''}</div>`;
             
             matches.forEach((match, index) => {
                 html += `
@@ -430,7 +489,25 @@
 
         const debouncedTestRegex = debounce(testRegex, 300);
 
+        // Message listener for external engine results
+        window.addEventListener('message', event => {
+            const message = event.data;
+            if (message.command === 'regexResult') {
+                if (message.success) {
+                    displayMatches(message.matches, message.engineName);
+                    highlightMatches(message.text, message.matches);
+                } else {
+                    matchResults.innerHTML = `<div class="regex-error">${message.engineName} Error: ${message.error}</div>`;
+                    highlightOverlay.innerHTML = '';
+                }
+            }
+        });
+
         // Event listeners
+        regexEngine.addEventListener('change', () => {
+            updateEngineInfo();
+            testRegex();
+        });
         regexPattern.addEventListener('input', debouncedTestRegex);
         testString.addEventListener('input', debouncedTestRegex);
         testString.addEventListener('scroll', syncScroll);
@@ -438,7 +515,8 @@
         flagIgnoreCase.addEventListener('change', testRegex);
         flagMultiline.addEventListener('change', testRegex);
 
-        // Initial test
+        // Initial setup
+        updateEngineInfo();
         testRegex();
 
         // Tooltip functionality

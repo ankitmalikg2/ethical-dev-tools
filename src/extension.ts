@@ -461,27 +461,25 @@ export function activate(context: vscode.ExtensionContext) {
 					switch (message.command) {
 						case 'testRegex':
 							try {
-								const regex = new RegExp(message.pattern, message.flags);
-								const matches = [];
-								let match;
-								while ((match = regex.exec(message.testString)) !== null) {
-									matches.push({
-										fullMatch: match[0],
-										index: match.index,
-										groups: match.slice(1)
-									});
-									if (!regex.global) break;
-								}
+								const result = await testRegexWithEngine(
+									message.engine,
+									message.pattern,
+									message.text,
+									message.flags
+								);
 								regexPanel?.webview.postMessage({
 									command: 'regexResult',
 									success: true,
-									matches: matches
+									matches: result.matches,
+									engineName: result.engineName,
+									text: message.text
 								});
 							} catch (error: any) {
 								regexPanel?.webview.postMessage({
 									command: 'regexResult',
 									success: false,
-									error: error.message
+									error: error.message,
+									engineName: getEngineName(message.engine)
 								});
 							}
 							return;
@@ -497,6 +495,115 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {}
+
+async function testRegexWithEngine(engine: string, pattern: string, text: string, flags: string) {
+	switch (engine) {
+		case 'ecma':
+			return testECMAScript(pattern, text, flags);
+		case 'pcre':
+			return testPCRE(pattern, text, flags);
+		case 'python':
+			return testPython(pattern, text, flags);
+		case 'golang':
+			return testGolang(pattern, text, flags);
+		case 'java':
+			return testJava(pattern, text, flags);
+		case 'rust':
+			return testRust(pattern, text, flags);
+		default:
+			throw new Error(`Unsupported engine: ${engine}`);
+	}
+}
+
+function getEngineName(engine: string): string {
+	const names: { [key: string]: string } = {
+		'ecma': 'ECMAScript',
+		'pcre': 'PCRE',
+		'python': 'Python',
+		'golang': 'Go (RE2)',
+		'java': 'Java',
+		'rust': 'Rust'
+	};
+	return names[engine] || engine;
+}
+
+function testECMAScript(pattern: string, text: string, flags: string) {
+	const regex = new RegExp(pattern, flags);
+	const matches = [];
+	let match;
+	const globalRegex = new RegExp(pattern, flags);
+	
+	while ((match = globalRegex.exec(text)) !== null) {
+		matches.push({
+			fullMatch: match[0],
+			index: match.index,
+			groups: match.slice(1),
+			endIndex: match.index + match[0].length
+		});
+		if (!flags.includes('g')) break;
+	}
+	
+	return { matches, engineName: 'ECMAScript' };
+}
+
+function testPCRE(pattern: string, text: string, flags: string) {
+	// PCRE emulation using ECMAScript with PCRE-like behavior
+	try {
+		// Convert PCRE named groups (?P<name>...) to ECMAScript (?<name>...)
+		const convertedPattern = pattern.replace(/\(\?P<([^>]+)>/g, '(?<$1>');
+		return testECMAScript(convertedPattern, text, flags);
+	} catch (error: any) {
+		return { matches: [], engineName: 'PCRE (Emulated)', error: error.message };
+	}
+}
+
+function testPython(pattern: string, text: string, flags: string) {
+	// Python regex emulation using ECMAScript
+	try {
+		// Convert Python named groups (?P<name>...) to ECMAScript (?<name>...)
+		const convertedPattern = pattern.replace(/\(\?P<([^>]+)>/g, '(?<$1>');
+		return testECMAScript(convertedPattern, text, flags);
+	} catch (error: any) {
+		return { matches: [], engineName: 'Python (Emulated)', error: error.message };
+	}
+}
+
+function testGolang(pattern: string, text: string, flags: string) {
+	// Go RE2 emulation - stricter than ECMAScript, no backreferences
+	try {
+		// Check for unsupported features in RE2
+		if (pattern.includes('\\1') || pattern.includes('\\2')) {
+			throw new Error('RE2 does not support backreferences');
+		}
+		// Convert Go named groups (?P<name>...) to ECMAScript (?<name>...)
+		const convertedPattern = pattern.replace(/\(\?P<([^>]+)>/g, '(?<$1>');
+		return testECMAScript(convertedPattern, text, flags);
+	} catch (error: any) {
+		return { matches: [], engineName: 'Go RE2 (Emulated)', error: error.message };
+	}
+}
+
+function testJava(pattern: string, text: string, flags: string) {
+	// Java regex emulation using ECMAScript
+	try {
+		// Java uses same syntax as ECMAScript for most features
+		return testECMAScript(pattern, text, flags);
+	} catch (error: any) {
+		return { matches: [], engineName: 'Java (Emulated)', error: error.message };
+	}
+}
+
+function testRust(pattern: string, text: string, flags: string) {
+	// Rust regex emulation using ECMAScript
+	try {
+		// Rust regex is similar to ECMAScript but stricter
+		return testECMAScript(pattern, text, flags);
+	} catch (error: any) {
+		return { matches: [], engineName: 'Rust (Emulated)', error: error.message };
+	}
+}
+
+
 
 function getWebviewContent(context: vscode.ExtensionContext, viewName: string) {
 	const htmlPath = vscode.Uri.joinPath(context.extensionUri, 'src', viewName);
